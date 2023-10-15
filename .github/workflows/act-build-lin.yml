@@ -42,9 +42,9 @@ jobs:
       shell: bash
       run: |
         PROG_NAME=$(grep "project(" CMakeLists.txt | awk -F"(" "{print $2}" | awk -F")" "{print $1}")
-        VER_MAJOR=$(grep "(KEEPASSXC_VERSION_MAJOR" CMakeLists.txt  | awk -F""" "{print $2}")
-        VER_MINOR=$(grep "(KEEPASSXC_VERSION_MINOR" CMakeLists.txt  | awk -F""" "{print $2}")
-        VER_PATCH=$(grep "(KEEPASSXC_VERSION_PATCH" CMakeLists.txt  | awk -F""" "{print $2}")
+        VER_MAJOR=$(grep "(KEEPASSXC_VERSION_MAJOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_MINOR=$(grep "(KEEPASSXC_VERSION_MINOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_PATCH=$(grep "(KEEPASSXC_VERSION_PATCH" CMakeLists.txt  | awk -F'"' '{print $2}')
 
         echo "PROG_NAME=$PROG_NAME" >> $GITHUB_ENV
         echo "PROG_VERSION=v$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
