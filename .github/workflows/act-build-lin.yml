@@ -1,0 +1,76 @@
+# 2023-10-15 19:20
+name: "Build keepassxc - Linux"
+
+on:
+#  push:
+#    branches: [ 'develop', 'release/2.7.x' ]
+#  pull_request:
+#    # The branches below must be a subset of the branches above
+#    branches: [ 'develop' ]
+#  schedule:
+#    - cron: '5 16 * * 3'
+  workflow_dispatch:
+
+env:
+  TAG_NAME:     'keepassxc'
+  TAG_NAME_ALL: 'keepassxc'
+  PROG_NAME:    'keepassxc'
+  PROG_VERSION: 'v1.1.1'
+  DRAFT:        true
+  GUI:          'lin'
+  
+jobs:
+  build:
+    name: Build
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+        # Use only 'java' to analyze code written in Java, Kotlin or both
+        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - if: matrix.language == 'cpp'
+      name: release-tool build
+      shell: bash
+      run: |
+        # mkdir build && cd build
+        bash release-tool build --version develop
+
+    - name: Archive Release ALL
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-ALL.zip'
+        directory: './'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Upload artifact
+      uses: deep-soft/upload-artifact@v3
+      with:
+        name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        path: |
+          ${{ env.ZIP_RELEASE_ARCHIVE }}
+        if-no-files-found: error
+
+    - name: Publish Release
+      continue-on-error: true
+      uses: deep-soft/release-action@v1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        allowUpdates: true
+        artifacts: |
+          ${{ env.ZIP_RELEASE_ARCHIVE }}
