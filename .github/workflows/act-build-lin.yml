@@ -49,6 +49,12 @@ jobs:
         echo "PROG_NAME=$PROG_NAME" >> $GITHUB_ENV
         echo "PROG_VERSION=v$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
 
+    - name: print program name, version
+      shell: bash
+      run: |
+        echo "PROG_NAME=${{ env.PROG_NAME" }}
+        echo "PROG_VERSION=${{ env.PROG_VERSION" }}
+
     - if: matrix.GUI == 'lin'
       name: Install dependencies
       run: |
