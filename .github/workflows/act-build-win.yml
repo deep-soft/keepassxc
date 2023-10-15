@@ -46,8 +46,8 @@ jobs:
       name: release-tool build
       shell: bash
       run: |
-        mkdir build && cd build
-        bash ../release-tool build
+        #mkdir build && cd build
+        release-tool build
 
     - name: Archive Release ALL
       uses: deep-soft/zip-release@v2
