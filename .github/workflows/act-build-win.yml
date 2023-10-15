@@ -47,7 +47,7 @@ jobs:
       shell: bash
       run: |
         # mkdir build && cd build
-        bash release-tool build --version 2.7.6
+        bash release-tool build --version develop
 
     - name: Archive Release ALL
       uses: deep-soft/zip-release@v2
