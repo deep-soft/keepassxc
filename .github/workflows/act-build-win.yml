@@ -46,7 +46,7 @@ jobs:
       name: release-tool build
       run: |
         mkdir build && cd build
-        powershell release-tool.ps1 build
+        powershell ..\release-tool.ps1 build
 
     - name: Archive Release ALL
       uses: deep-soft/zip-release@v2
