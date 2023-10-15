@@ -53,7 +53,7 @@ jobs:
       run: |
         mkdir build && cd build
         cmake -DWITH_XC_ALL=ON -DWITH_TESTS=OFF ..
-        make -j $(nproc)
+        make -j $(nproc) package
 
     - name: Archive Release ALL
       uses: deep-soft/zip-release@v2
