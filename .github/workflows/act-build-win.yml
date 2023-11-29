@@ -58,6 +58,7 @@ jobs:
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
         # $VCPKG_ROOT/vcpkg install botan --x-install-root="$VCPKG_ROOT/installed"
         $VCPKG_ROOT/vcpkg install botan
+        cmake --build cmake/FindBotan.cmake
         bash release-tool build --version develop
 
     - if: matrix.language == 'cpp'
