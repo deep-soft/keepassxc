@@ -24,7 +24,7 @@
 #include "core/Metadata.h"
 #include "core/PasswordHealth.h"
 #include "core/Tools.h"
-#include "totp/totp.h"
+#include "core/Totp.h"
 
 #include <QDir>
 #include <QRegularExpression>
@@ -566,7 +566,7 @@ void Entry::setTotp(QSharedPointer<Totp::Settings> settings)
     m_attributes->remove(Totp::ATTRIBUTE_SEED);
     m_attributes->remove(Totp::ATTRIBUTE_SETTINGS);
 
-    if (settings->key.isEmpty()) {
+    if (!settings || settings->key.isEmpty()) {
         m_data.totpSettings.reset();
     } else {
         m_data.totpSettings = std::move(settings);
@@ -1277,10 +1277,10 @@ void Entry::setGroup(Group* group, bool trackPrevious)
         }
     }
 
+    QObject::setParent(group);
+
     m_group = group;
     group->addEntry(this);
-
-    QObject::setParent(group);
 
     if (m_updateTimeinfo) {
         m_data.timeInfo.setLocationChanged(Clock::currentDateTimeUtc());
@@ -1549,7 +1549,7 @@ bool EntryData::equals(const EntryData& other, CompareItemOptions options) const
             return false;
         }
     } else if (totpSettings.isNull() != other.totpSettings.isNull()) {
-        // The existance of TOTP has changed between these entries
+        // The existence of TOTP has changed between these entries
         return false;
     }
     if (::compare(excludeFromReports, other.excludeFromReports, options) != 0) {
