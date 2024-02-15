@@ -59,7 +59,7 @@ jobs:
         # $VCPKG_ROOT/vcpkg install botan --x-install-root="$VCPKG_ROOT/installed"
         $VCPKG_ROOT/vcpkg install botan
         # cmake cmake/FindBotan.cmake
-        bash release-tool build --version master
+        bash release-tool build --version develop
 
     - if: matrix.language == 'cpp'
       name: release-tool build
@@ -68,7 +68,7 @@ jobs:
       run: |
         # mkdir build && cd build
         # moved to name: Install vcpkg dependencies and build
-        # bash release-tool build --version master
+        # bash release-tool build --version develop
 
     - name: Archive Release ALL
       continue-on-error: true
