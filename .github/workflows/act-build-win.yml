@@ -1,4 +1,4 @@
-# 2023-11-25 20:00
+# 2024-02-15 13:00
 name: "Build keepassxc - Windows"
 
 on:
@@ -24,7 +24,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: 'windows-latest'
+    runs-on: 'windows-2019'
     timeout-minutes: 360
     permissions:
       actions: read
@@ -42,7 +42,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup vcpkg with Github Actions binary cache
       continue-on-error: true
@@ -81,7 +81,7 @@ jobs:
 
     - name: Upload artifact
       continue-on-error: true
-      uses: deep-soft/upload-artifact@v3
+      uses: deep-soft/upload-artifact@v4
       with:
         name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
         path: |
@@ -90,7 +90,7 @@ jobs:
 
     - name: Publish Release
       continue-on-error: true
-      uses: deep-soft/release-action@v1
+      uses: deep-soft/release-action@v2.1
       with:
         draft: ${{ env.DRAFT }}
         tag: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
