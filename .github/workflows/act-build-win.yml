@@ -10,6 +10,11 @@ on:
 #  schedule:
 #    - cron: '5 16 * * 3'
   workflow_dispatch:
+    inputs:
+      archive-all:
+        description: archive-all
+        default: false
+        required: true
 
 env:
   TAG_NAME:     'keepassxc'
@@ -59,7 +64,9 @@ jobs:
         # $VCPKG_ROOT/vcpkg install botan --x-install-root="$VCPKG_ROOT/installed"
         $VCPKG_ROOT/vcpkg install botan
         # cmake cmake/FindBotan.cmake
-        bash release-tool build --version develop
+        #bash release-tool build --version develop
+        mkdir build && cd build
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON ..
 
     - if: matrix.language == 'cpp'
       name: release-tool build
@@ -71,6 +78,7 @@ jobs:
         # bash release-tool build --version develop
 
     - name: Archive Release ALL
+      if: ${{ inputs.archive-all }}
       continue-on-error: true
       uses: deep-soft/zip-release@v2
       with:
@@ -80,6 +88,7 @@ jobs:
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
     - name: Upload artifact
+      if: ${{ inputs.archive-all }}
       continue-on-error: true
       uses: deep-soft/upload-artifact@v4
       with:
@@ -89,6 +98,7 @@ jobs:
         # if-no-files-found: error
 
     - name: Publish Release
+      if: ${{ inputs.archive-all }}
       continue-on-error: true
       uses: deep-soft/action-gh-release@v2.1
       with:
