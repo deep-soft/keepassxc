@@ -42,7 +42,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: deep-soft/checkout@v4
 
     - name: Setup vcpkg with Github Actions binary cache
       continue-on-error: true
