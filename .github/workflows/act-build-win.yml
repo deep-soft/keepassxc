@@ -90,7 +90,7 @@ jobs:
 
     - name: Publish Release
       continue-on-error: true
-      uses: deep-soft/release-action@v2.1
+      uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
         tag: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
