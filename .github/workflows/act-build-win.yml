@@ -70,7 +70,7 @@ jobs:
         # $VCPKG_ROOT/vcpkg install botan 
         # bash release-tool build --version develop
         mkdir build && cd build
-        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON ..
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
 
     - if: matrix.language == 'cpp'
       name: release-tool build
