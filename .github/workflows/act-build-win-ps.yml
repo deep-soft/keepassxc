@@ -75,9 +75,9 @@ jobs:
     - if: matrix.language == 'cpp'
       name: release-tool.ps1 build
       continue-on-error: true
-      shell: powershell
+      shell: cmd
       run: |
-        release-tool.ps1 build --version develop
+        powershell ./release-tool.ps1 build --version develop
 
     - name: Archive Release ALL
       if: ${{ inputs.archive-all }}
