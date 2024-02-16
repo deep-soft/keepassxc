@@ -61,7 +61,7 @@ jobs:
       continue-on-error: true
       shell: bash
       run: |
-        $VCPKG_ROOT/vcpkg install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+        $VCPKG_ROOT/vcpkg install argon2 pkcs11-helper botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
         # $VCPKG_ROOT/vcpkg install botan --x-install-root="$VCPKG_ROOT/installed"
         #
