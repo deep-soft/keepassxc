@@ -62,16 +62,6 @@ jobs:
     - name: Checkout repository
       uses: deep-soft/checkout@v4
 
-    - name: Set the version string for the program
-      run: |
-        VERSION=$(grep KEEPASSXC_VERSION config-keepassx.h  | awk "{print $3}" | tr -d '"');
-        echo "VERSION=$VERSION";
-        echo "PROG_VERSION=$VERSION" >> $GITHUB_ENV;
-
-    - name: Print version
-      run: |
-        echo "PROG_VERSION=${{ env.PROG_VERSION }}"
-
     - name: code fix
       continue-on-error: true
       shell: bash
@@ -123,6 +113,19 @@ jobs:
           ..
         # cmake --build .. --config Release;
         # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+
+    - name: Set the version string for the program
+      continue-on-error: true
+      working-directory: ${{github.workspace}}/build
+      run: |
+        VERSION=$(grep KEEPASSXC_VERSION src/config-keepassx.h  | awk "{print $3}" | tr -d '"');
+        echo "VERSION=$VERSION";
+        echo "PROG_VERSION=$VERSION" >> $GITHUB_ENV;
+
+    - name: Print version
+      continue-on-error: true
+      run: |
+        echo "PROG_VERSION=${{ env.PROG_VERSION }}"
 
     - name: Build - msbuild
       if: inputs.build_tool == 'msbuild' && matrix.language == 'cpp'
