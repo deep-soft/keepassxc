@@ -77,7 +77,7 @@ jobs:
       name: release-tool.ps1 build
       continue-on-error: true
       #shell: powershell
-      run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }} -Arch ${{ env.ARCH }}
+      run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
 
     - name: Archive Release ALL
       if: ${{ inputs.archive-all }}
