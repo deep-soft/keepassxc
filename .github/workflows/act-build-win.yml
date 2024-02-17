@@ -1,5 +1,5 @@
 # 2024-02-15 13:00
-name: "Build keepassxc - Windows"
+name: "Build - Win"
 
 on:
 #  push:
