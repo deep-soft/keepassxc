@@ -1,5 +1,5 @@
 # 2024-02-15 13:00
-name: "Build keepassxc - Windows - release-tool.ps1"
+name: "Build keepassxc - Windows - release-tool or cmake"
 
 on:
 #  push:
@@ -16,8 +16,8 @@ on:
         type: boolean
         default: false
         required: true
-      build_type:
-        description: build type
+      build_tool:
+        description: build tool
         type: choice
         options:
           - 'cmake'
@@ -67,27 +67,47 @@ jobs:
         #vcpkgDirectory: C:\vcpkg
         vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
 
-    - name: Install vcpkg dependencies and build
+    - name: Install vcpkg dependencies
       continue-on-error: true
       shell: bash
       run: |
-        $VCPKG_ROOT/vcpkg install argon2 openvpn3 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
-        #$VCPKG_ROOT/vcpkg-ports install pkcs11-helper
-        #$VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
+        $VCPKG_ROOT/vcpkg install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+        # $VCPKG_ROOT/vcpkg install openvpn3
+        # $VCPKG_ROOT/vcpkg-ports install pkcs11-helper
+        # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
 
-    - name: build - cmake
-      if: inputs.build_type == 'cmake' && matrix.language == 'cpp'
+    - name: build - cmake - configure
+      if: inputs.build_tool == 'cmake' && matrix.language == 'cpp'
       continue-on-error: true
       shell: bash
       run: |
         mkdir build && cd build
-        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+          -DWITH_XC_AUTOTYPE=ON    \
+          -DWITH_XC_BROWSER=ON     \
+          -DWITH_XC_SSHAGENT=ON    \
+          -DWITH_XC_FDOSECRETS=ON  \
+          -DWITH_XC_KEESHARE=ON    \
+          -DWITH_XC_NETWORKING=OFF \
+          -DWITH_XC_YUBIKEY=OFF    \
+          -DKEEPASSXC_BUILD_TYPE=Release \
+          ..
+        # cmake --build .. --config Release;
         # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
         # bash release-tool build --version develop
 
+    - name: build - cmake - build
+      if: inputs.build_tool == 'cmake' && matrix.language == 'cpp'
+      continue-on-error: true
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        cmake --build .. --config Release;
+        # bash release-tool build --version develop
+
     - name: build - release-tool.ps1
-      if: inputs.build_type == 'release-tool' && matrix.language == 'cpp'
+      if: inputs.build_tool == 'release-tool' && matrix.language == 'cpp'
       continue-on-error: true
       # shell: powershell
       run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
