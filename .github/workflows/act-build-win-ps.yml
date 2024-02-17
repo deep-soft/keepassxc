@@ -16,10 +16,18 @@ on:
         type: boolean
         default: false
         required: true
+      build_type:
+        description: build type
+        type: choice
+          - cmake
+          - release-tool
+        default: cmake
+        required: true
+
 
 env:
   TAG_NAME:     'keepassxc'
-  TAG_NAME_ALL: 'keepassxc'
+  TAG_NAME_ALL: 'keepassxc-ALL'
   PROG_NAME:    'keepassxc'
   PROG_VERSION: '1.1.1'
   DRAFT:        true
@@ -66,20 +74,43 @@ jobs:
         #$VCPKG_ROOT/vcpkg-ports install pkcs11-helper
         #$VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
-        # $VCPKG_ROOT/vcpkg install botan --x-install-root="$VCPKG_ROOT/installed"
-        #
-        # $VCPKG_ROOT/vcpkg install botan 
-        # bash release-tool build --version develop
-        # mkdir build && cd build
-        # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
 
-    - if: matrix.language == 'cpp'
-      name: release-tool.ps1 build
+    - name: build - cmake
+      if: inputs.build_type == 'cmake' && matrix.language == 'cpp'
+      continue-on-error: true
+      shell: bash
+      run: |
+        mkdir build && cd build
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+        # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+        # bash release-tool build --version develop
+
+    - name: build - release-tool.ps1
+      if: inputs.build_type == 'release-tool' && matrix.language == 'cpp'
       continue-on-error: true
       # shell: powershell
       run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
 
-    - name: Archive Release ALL
+    - name: Archive Release
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}.zip'
+        directory: './build'
+        env_variable: 'ZIP_ARCHIVE_RELEASE'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Publish Release
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME }}-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_RELEASE }}
+
+    - name: Archive Release - ALL
       if: ${{ inputs.archive-all }}
       continue-on-error: true
       uses: deep-soft/zip-release@v2
@@ -87,19 +118,10 @@ jobs:
         type: 'zip'
         filename: '${{ env.PROG_NAME }}-ALL.zip'
         directory: './'
+        env_variable: 'ZIP_ARCHIVE_ALL'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
-    - name: Upload artifact
-      if: ${{ inputs.archive-all }}
-      continue-on-error: true
-      uses: deep-soft/upload-artifact@v4
-      with:
-        name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
-        path: |
-          ${{ env.ZIP_RELEASE_ARCHIVE }}
-        # if-no-files-found: error
-
-    - name: Publish Release
+    - name: Publish Release - ALL
       if: ${{ inputs.archive-all }}
       continue-on-error: true
       uses: deep-soft/action-gh-release@v2.1
@@ -107,4 +129,4 @@ jobs:
         draft: ${{ env.DRAFT }}
         tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
         files: |
-          ${{ env.ZIP_RELEASE_ARCHIVE }}
+          ${{ env.ZIP_ARCHIVE_ALL }}
