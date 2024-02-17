@@ -61,6 +61,11 @@ jobs:
     - name: Checkout repository
       uses: deep-soft/checkout@v4
 
+    - name: Set MSVC environment
+      uses: deep-soft/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
     - name: Setup vcpkg with Github Actions binary cache
       continue-on-error: true
       uses: deep-soft/run-vcpkg@v11
@@ -104,6 +109,7 @@ jobs:
 
     - name: Build - msbuild
       if: inputs.build_tool == 'msbuild' && matrix.language == 'cpp'
+      continue-on-error: true
       working-directory: ${{github.workspace}}/build
       run: |
         msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
