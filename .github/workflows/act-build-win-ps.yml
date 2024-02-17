@@ -79,7 +79,6 @@ jobs:
 
     - name: Install tools
       continue-on-error: true
-      #shell: bash
       run: |
         choco install ruby
         gem install asciidoctor
@@ -94,15 +93,14 @@ jobs:
           -DWITH_XC_AUTOTYPE=ON    \
           -DWITH_XC_BROWSER=ON     \
           -DWITH_XC_SSHAGENT=ON    \
-          -DWITH_XC_FDOSECRETS=ON  \
           -DWITH_XC_KEESHARE=ON    \
+          -DWITH_XC_FDOSECRETS=OFF \
           -DWITH_XC_NETWORKING=OFF \
           -DWITH_XC_YUBIKEY=OFF    \
           -DKEEPASSXC_BUILD_TYPE=Release \
           ..
         # cmake --build .. --config Release;
         # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
-        # bash release-tool build --version develop
 
     - name: build - cmake - build
       if: inputs.build_tool == 'cmake' && matrix.language == 'cpp'
