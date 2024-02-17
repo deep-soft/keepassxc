@@ -62,6 +62,16 @@ jobs:
     - name: Checkout repository
       uses: deep-soft/checkout@v4
 
+    - name: Set the version string for the program
+      run: |
+        VERSION=$(grep KEEPASSXC_VERSION config-keepassx.h  | awk "{print $3}" | tr -d '"');
+        echo "VERSION=$VERSION";
+        echo "PROG_VERSION=$VERSION" >> $GITHUB_ENV;
+
+    - name: Print version
+      run: |
+        echo "PROG_VERSION=${{ env.PROG_VERSION }}"
+
     - name: code fix
       continue-on-error: true
       shell: bash
