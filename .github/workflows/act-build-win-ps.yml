@@ -19,8 +19,9 @@ on:
       build_type:
         description: build type
         type: choice
-          - cmake
-          - release-tool
+        options:
+          - 'cmake'
+          - 'release-tool'
         default: cmake
         required: true
 
