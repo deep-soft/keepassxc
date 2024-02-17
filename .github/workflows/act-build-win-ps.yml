@@ -1,5 +1,5 @@
 # 2024-02-15 13:00
-name: "Build keepassxc - Windows - release-tool or cmake"
+name: "Build - Win - release-tool or cmake"
 
 on:
 #  push:
