@@ -77,6 +77,13 @@ jobs:
         # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
 
+    - name: Install tools
+      continue-on-error: true
+      #shell: bash
+      run: |
+        choco install ruby
+        gem install asciidoctor
+
     - name: build - cmake - configure
       if: inputs.build_tool == 'cmake' && matrix.language == 'cpp'
       continue-on-error: true
@@ -103,7 +110,8 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        cmake --build .. --config Release;
+        make -j"$(nproc)" package
+        # cmake --build .. --config Release;
         # bash release-tool build --version develop
 
     - name: build - release-tool.ps1
