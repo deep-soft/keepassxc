@@ -16,6 +16,11 @@ on:
         type: boolean
         default: false
         required: true
+      archive-NoVCPKG:
+        description: archive-NoVCPKG
+        type: boolean
+        default: false
+        required: true
       build_tool:
         description: build tool
         type: choice
@@ -185,6 +190,28 @@ jobs:
         tag_name: ${{ env.TAG_NAME }}-${{ env.GUI }}
         files: |
           ${{ env.ZIP_ARCHIVE_RELEASE }}
+
+    - name: Archive Release - NoVCPKG
+      if: ${{ inputs.archive-NoVCPKG }}
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-NoVCPKG.zip'
+        directory: './'
+        exclude: './vcpkg'
+        env_variable: 'ZIP_ARCHIVE_NoVCPKG'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Publish Release - NoVCPKG
+      if: ${{ inputs.archive-NoVCPKG }}
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_NoVCPKG }}
 
     - name: Archive Release - ALL
       if: ${{ inputs.archive-all }}
