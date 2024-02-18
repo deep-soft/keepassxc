@@ -27,7 +27,6 @@ on:
         options:
           - 'msbuild'
           - 'cmake'
-          - 'make'
           - 'release-tool'
           - 'MSYS'
         default: cmake
@@ -214,15 +213,6 @@ jobs:
       run: |
         cmake --build . --config Release;
 
-    - name: build - make
-      if: inputs.build_tool == 'make'
-      continue-on-error: true
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: |
-        make -j"$(nproc)"
-        # bash release-tool build --version develop
-
     - name: build - release-tool.ps1
       if: inputs.build_tool == 'release-tool'
       continue-on-error: true
@@ -235,7 +225,6 @@ jobs:
       shell: msys2 {0}
       working-directory: ${{github.workspace}}/build
       run: |
-        gcc --version
         make CLANG=1 -j"$(nproc)" package
 
     - name: Archive Release
