@@ -1,0 +1,96 @@
+# 2024-02-15 13:00
+name: "Build - Lin"
+
+on:
+#  push:
+#    branches: [ 'develop', 'release/2.7.x' ]
+#  pull_request:
+#    # The branches below must be a subset of the branches above
+#    branches: [ 'develop' ]
+#  schedule:
+#    - cron: '5 16 * * 3'
+  workflow_dispatch:
+
+env:
+  TAG_NAME:     'keepassxc'
+  TAG_NAME_ALL: 'keepassxc'
+  PROG_NAME:    'keepassxc'
+  PROG_VERSION: 'v1.1.1'
+  DRAFT:        true
+  GUI:          'lin'
+  
+jobs:
+  build:
+    name: Build
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        GUI: [ 'lin' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: get program name, version
+      shell: bash
+      run: |
+        PROG_NAME=$(grep "project(" CMakeLists.txt | awk -F'(' '{print $2}' | awk -F')' '{print $1}')
+        VER_MAJOR=$(grep "(KEEPASSXC_VERSION_MAJOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_MINOR=$(grep "(KEEPASSXC_VERSION_MINOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_PATCH=$(grep "(KEEPASSXC_VERSION_PATCH" CMakeLists.txt  | awk -F'"' '{print $2}')
+
+        echo "PROG_NAME=$PROG_NAME" >> $GITHUB_ENV
+        echo "PROG_VERSION=v$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
+
+    - name: print program name, version
+      shell: bash
+      run: |
+        echo "PROG_NAME=${{ env.PROG_NAME }}"
+        echo "PROG_VERSION=${{ env.PROG_VERSION }}"
+
+    - if: matrix.GUI == 'lin'
+      name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install build-essential cmake g++
+        sudo apt install qtbase5-dev qtbase5-private-dev qttools5-dev qttools5-dev-tools libqt5svg5-dev libargon2-dev libkeyutils-dev libminizip-dev libbotan-2-dev libqrencode-dev zlib1g-dev asciidoctor libreadline-dev libpcsclite-dev libusb-1.0-0-dev libxi-dev libxtst-dev  libqt5x11extras5-dev
+
+    - if: matrix.GUI == 'lin'
+      name: release-tool build
+      shell: bash
+      run: |
+        # mkdir build && cd build
+        bash release-tool build --version develop
+
+    - name: Archive Release
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ env.GUI }}.zip'
+        directory: './release/KeePassXC.AppDir'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Upload artifact
+      uses: deep-soft/upload-artifact@v4
+      with:
+        name: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ env.GUI }}
+        path: |
+          ${{ env.ZIP_RELEASE_ARCHIVE }}
+        if-no-files-found: error
+
+    - name: Publish Release
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
+        allowUpdates: true
+        artifacts: |
+          ${{ env.ZIP_RELEASE_ARCHIVE }}

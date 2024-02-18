@@ -1,0 +1,56 @@
+# 2023-10-15 19:20
+name: test-var-"Build keepassxc - Linux"
+
+on:
+#  push:
+#    branches: [ 'develop', 'release/2.7.x' ]
+#  pull_request:
+#    # The branches below must be a subset of the branches above
+#    branches: [ 'develop' ]
+#  schedule:
+#    - cron: '5 16 * * 3'
+  workflow_dispatch:
+
+env:
+  TAG_NAME:     'keepassxc'
+  TAG_NAME_ALL: 'keepassxc'
+  PROG_NAME:    'keepassxc'
+  PROG_VERSION: 'v1.1.1'
+  DRAFT:        true
+  GUI:          'lin'
+  
+jobs:
+  build:
+    name: Build
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        GUI: [ 'lin' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: get program name, version
+      shell: bash
+      run: |
+        PROG_NAME=$(grep "project(" CMakeLists.txt | awk -F'(' '{print $2}' | awk -F')' '{print $1}')
+        VER_MAJOR=$(grep "(KEEPASSXC_VERSION_MAJOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_MINOR=$(grep "(KEEPASSXC_VERSION_MINOR" CMakeLists.txt  | awk -F'"' '{print $2}')
+        VER_PATCH=$(grep "(KEEPASSXC_VERSION_PATCH" CMakeLists.txt  | awk -F'"' '{print $2}')
+
+        echo "PROG_NAME=$PROG_NAME" >> $GITHUB_ENV
+        echo "PROG_VERSION=v$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
+
+    - name: print program name, version
+      shell: bash
+      run: |
+        echo "PROG_NAME=${{ env.PROG_NAME }}"
+        echo "PROG_VERSION=${{ env.PROG_VERSION }}"

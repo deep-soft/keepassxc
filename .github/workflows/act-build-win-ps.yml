@@ -1,0 +1,257 @@
+# 2024-02-15 13:00
+name: "Build - Win - release-tool or cmake"
+
+on:
+#  push:
+#    branches: [ 'develop', 'release/2.7.x' ]
+#  pull_request:
+#    # The branches below must be a subset of the branches above
+#    branches: [ 'develop' ]
+#  schedule:
+#    - cron: '5 16 * * 3'
+  workflow_dispatch:
+    inputs:
+      archive-all:
+        description: archive-all
+        type: boolean
+        default: false
+        required: true
+      archive-NoVCPKG:
+        description: archive-NoVCPKG
+        type: boolean
+        default: false
+        required: true
+      build_tool:
+        description: build tool
+        type: choice
+        options:
+          - 'msbuild'
+          - 'cmake'
+          - 'make'
+          - 'release-tool'
+        default: cmake
+        required: true
+      SED_STUFF:
+        description: SED_STUFF
+        type: boolean
+        default: false
+        required: true
+      SED_STUFF_PARAMS:
+        description: SED_STUFF_PARAMS
+        default: "build.py"
+        required: true
+      DEBUG_MODE:
+        description: DEBUG_MODE
+        default: "N"
+        required: true
+
+env:
+  TAG_NAME:     'keepassxc'
+  TAG_NAME_ALL: 'keepassxc-ALL'
+  PROG_NAME:    'keepassxc'
+  PROG_VERSION: '1.1.1'
+  DRAFT:        true
+  ARCH:         'amd64'
+  GUI:          'win'
+  VCPKG_COMMIT_ID:      "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50"
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+  
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'windows-2019', 'windows-2022' ]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+        # Use only 'java' to analyze code written in Java, Kotlin or both
+        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+
+    steps:
+    - name: Checkout repository
+      uses: deep-soft/checkout@v4
+
+#    - name: code fix
+#      continue-on-error: true
+#      shell: bash
+#      run: |
+#        sed -ibak "s!#include \"QuickUnlockInterface.h\";!#include \"QuickUnlockInterface.h\"!" "src/quickunlock/WindowsHello.h"
+#        grep "QuickUnlockInterface" "src/quickunlock/WindowsHello.h"
+#
+#        #sed -ibak "s!#include <Windows.h>!#include <Windows.h>\n#include <winuser.h>!" "src/gui/osutils/winutils/WinUtils.cpp"
+#        #grep "winuser.h" "src/gui/osutils/winutils/WinUtils.cpp"
+#
+#        sed -ibak "s!#include <Windows.h>!#include <Windows.h>\n#define WDA_EXCLUDEFROMCAPTURE 0x00000011!" "src/gui/osutils/winutils/WinUtils.cpp"
+#        grep "WDA_EXCLUDEFROMCAPTURE" "src/gui/osutils/winutils/WinUtils.cpp"
+
+    - name: sed-stuff
+      if: ${{ inputs.SED_STUFF }}
+      continue-on-error: true
+      shell: bash
+      env:
+        DEBUG_MODE_1: ${{ inputs.DEBUG_MODE }}
+        DEBUG_MODE_2: ${{ inputs.DEBUG_MODE }}
+      run: |
+        bash bins/sed-stuff.sh "_" "${{ inputs.SED_STUFF_PARAMS }}"
+
+    - name: Set MSVC environment
+      uses: deep-soft/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Setup vcpkg with Github Actions binary cache
+      continue-on-error: true
+      uses: deep-soft/run-vcpkg@v11
+      with:
+        #vcpkgDirectory: C:\vcpkg
+        vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+
+    - name: Install vcpkg dependencies
+      continue-on-error: true
+      shell: bash
+      run: |
+        $VCPKG_ROOT/vcpkg install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+        # $VCPKG_ROOT/vcpkg install openvpn3
+        # $VCPKG_ROOT/vcpkg-ports install pkcs11-helper
+        # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
+        # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
+
+    - name: Install tools
+      continue-on-error: true
+      run: |
+        choco install ruby
+        gem install asciidoctor
+
+    - name: cmake - configure
+      continue-on-error: true
+      shell: bash
+      run: |
+        mkdir build && cd build
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+          -DKEEPASSXC_BUILD_TYPE=Release \
+          -DWITH_XC_AUTOTYPE=ON    \
+          -DWITH_XC_BROWSER=ON     \
+          -DWITH_XC_SSHAGENT=ON    \
+          -DWITH_XC_KEESHARE=ON    \
+          -DWITH_XC_FDOSECRETS=OFF \
+          -DWITH_XC_NETWORKING=OFF \
+          -DWITH_XC_YUBIKEY=OFF    \
+          ..
+        # cmake --build .. --config Release;
+        # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+
+    - name: Set the version string for the program
+      continue-on-error: true
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        VERSION=$(grep KEEPASSXC_VERSION src/config-keepassx.h  | awk '{print $3}' | tr -d '"');
+        echo "VERSION=$VERSION";
+        echo "PROG_VERSION=$VERSION" >> $GITHUB_ENV;
+
+    - name: Print version
+      continue-on-error: true
+      run: |
+        echo "PROG_VERSION=${{ env.PROG_VERSION }}"
+
+    - name: Build - msbuild
+      if: inputs.build_tool == 'msbuild'
+      continue-on-error: true
+      working-directory: ${{github.workspace}}/build
+      run: |
+        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        PACKAGE.vcxproj
+#        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
+#        msbuild -m /property:Configuration=${{ inputs.build_config }} /property:Platform=${{ inputs.platform_sln }} KeePassXC.sln
+
+    - name: build - cmake
+      if: inputs.build_tool == 'cmake'
+      continue-on-error: true
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        cmake --build . --config Release;
+
+    - name: build - make
+      if: inputs.build_tool == 'make'
+      continue-on-error: true
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        make -j"$(nproc)"
+        # bash release-tool build --version develop
+
+    - name: build - release-tool.ps1
+      if: inputs.build_tool == 'release-tool'
+      continue-on-error: true
+      # shell: powershell
+      run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
+
+    - name: Archive Release
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}.zip'
+        directory: './build'
+        env_variable: 'ZIP_ARCHIVE_RELEASE'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Publish Release
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME }}-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_RELEASE }}
+
+    - name: Archive Release - NoVCPKG
+      if: ${{ inputs.archive-NoVCPKG }}
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ matrix.os }}-NoVCPKG.zip'
+        directory: './'
+        exclude: './vcpkg'
+        env_variable: 'ZIP_ARCHIVE_NoVCPKG'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Publish Release - NoVCPKG
+      if: ${{ inputs.archive-NoVCPKG }}
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_NoVCPKG }}
+
+    - name: Archive Release - ALL
+      if: ${{ inputs.archive-all }}
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ matrix.os }}-ALL.zip'
+        directory: './'
+        env_variable: 'ZIP_ARCHIVE_ALL'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
+    - name: Publish Release - ALL
+      if: ${{ inputs.archive-all }}
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_ALL }}
