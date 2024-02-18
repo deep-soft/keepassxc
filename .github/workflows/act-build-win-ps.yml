@@ -1,4 +1,4 @@
-# 2024-02-15 13:00
+# 2024-02-18 14:00
 name: "Build - Win - release-tool or cmake"
 
 on:
@@ -69,8 +69,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [ 'windows-2019', 'windows-2022' ]
         os: [ 'windows-2022' ]
+        #os: [ 'windows-2019', 'windows-2022' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Use only 'java' to analyze code written in Java, Kotlin or both
         # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
