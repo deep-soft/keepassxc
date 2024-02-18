@@ -126,7 +126,7 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW64
-        install: make gcc mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
+        install: make gcc mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
 
     - name: Setup vcpkg with Github Actions binary cache
 #      if: inputs.build_tool != 'MSYS'
@@ -229,14 +229,14 @@ jobs:
       # shell: powershell
       run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
  
-    - name: build - MSYS - GCC x64
+    - name: build - MSYS -
       if: inputs.build_tool == 'MSYS'
       continue-on-error: true
       shell: msys2 {0}
       working-directory: ${{github.workspace}}/build
       run: |
         gcc --version
-        make -j"$(nproc)" package
+        make CLANG=1 -j"$(nproc)" package
 
     - name: Archive Release
       continue-on-error: true
