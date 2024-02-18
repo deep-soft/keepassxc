@@ -1,6 +1,6 @@
 #BOF#
 # sed-stuff.txt
-# 2024.02.18 10:00
+# 2024.02.18 13:00
 
 #1
 S:#include "QuickUnlockInterface.h";
@@ -16,5 +16,10 @@ F:src/quickunlock/WindowsHello.h
 S:#include <Windows.h>
 R:#include <Windows.h>\n#define WDA_EXCLUDEFROMCAPTURE 0x00000011
 F:src/gui/osutils/winutils/WinUtils.cpp
+
+#4
+S:cmake_minimum_required(VERSION 3.3.0)
+R:cmake_minimum_required(VERSION 3.20.4)
+F:CMakeLists.txt
 
 #EOF#
