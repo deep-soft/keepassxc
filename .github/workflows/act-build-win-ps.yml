@@ -132,8 +132,8 @@ jobs:
 
     - name: Install tools
       continue-on-error: true
+      # choco install ruby
       run: |
-        rem choco install ruby
         gem install asciidoctor
 
     - name: cmake - configure
