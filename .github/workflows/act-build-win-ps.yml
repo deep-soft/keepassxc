@@ -221,7 +221,7 @@ jobs:
         type: 'zip'
         filename: '${{ env.PROG_NAME }}-${{ matrix.os }}-NoVCPKG.zip'
         directory: './'
-        exclude: './vcpkg'
+        exclusions: './vcpkg'
         env_variable: 'ZIP_ARCHIVE_NoVCPKG'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
