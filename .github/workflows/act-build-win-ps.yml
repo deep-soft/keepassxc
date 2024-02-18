@@ -172,7 +172,7 @@ jobs:
       shell: bash
       run: |
         mkdir build && cd build
-        cmake -G "MSYS Makefiles"    \
+        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -G "MSYS Makefiles" \
           -DWITH_XC_AUTOTYPE=ON      \
           -DWITH_XC_BROWSER=ON       \
           -DWITH_XC_SSHAGENT=ON      \
