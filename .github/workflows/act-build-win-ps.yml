@@ -205,12 +205,20 @@ jobs:
       # shell: powershell
       run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
 
+    - name: Install Clang x64
+      if: inputs.build_tool == 'MSYS'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: make mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
+
     - name: build - MSYS
       if: inputs.build_tool == 'MSYS'
       continue-on-error: true
       shell: msys2 {0}
       # make -j4 package
       run: |
+        gcc --version
         mkdir build
         cd build
         cmake -G "MSYS Makefiles" \
@@ -223,7 +231,7 @@ jobs:
           -DWITH_XC_YUBIKEY=OFF    \
           -DCMAKE_BUILD_TYPE=Release \
           ..
-        make -j"$(nproc)" package
+        make -j"$(nproc)"  CLANG=1 package
 
     - name: Archive Release
       continue-on-error: true
