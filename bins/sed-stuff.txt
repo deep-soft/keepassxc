@@ -1,0 +1,20 @@
+#BOF#
+# sed-stuff.txt
+# 2024.02.18 10:00
+
+#1
+S:#include "QuickUnlockInterface.h";
+R:#include "QuickUnlockInterface.h"
+F:src/quickunlock/WindowsHello.h
+
+#2
+#S:#include <Windows.h>
+#R:#include <Windows.h>\n#include <winuser.h>
+#F:src/gui/osutils/winutils/WinUtils.cpp
+
+#3
+S:#include <Windows.h>
+R:#include <Windows.h>\n#define WDA_EXCLUDEFROMCAPTURE 0x00000011
+F:src/gui/osutils/winutils/WinUtils.cpp
+
+#EOF#
