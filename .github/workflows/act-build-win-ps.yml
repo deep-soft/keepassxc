@@ -118,6 +118,7 @@ jobs:
     - name: Set the version string for the program
       continue-on-error: true
       working-directory: ${{github.workspace}}/build
+      shell: bash
       run: |
         VERSION=$(grep KEEPASSXC_VERSION src/config-keepassx.h  | awk "{print $3}" | tr -d '"');
         echo "VERSION=$VERSION";
@@ -143,7 +144,7 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        cmake --build .. --config Release;
+        cmake --build --config Release;
 
     - name: build - make
       if: inputs.build_tool == 'make' && matrix.language == 'cpp'
