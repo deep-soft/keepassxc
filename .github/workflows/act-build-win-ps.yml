@@ -148,16 +148,33 @@ jobs:
         mkdir build && cd build
         cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
           -DKEEPASSXC_BUILD_TYPE=Release \
-          -DWITH_XC_AUTOTYPE=ON    \
-          -DWITH_XC_BROWSER=ON     \
-          -DWITH_XC_SSHAGENT=ON    \
-          -DWITH_XC_KEESHARE=ON    \
-          -DWITH_XC_FDOSECRETS=OFF \
-          -DWITH_XC_NETWORKING=OFF \
-          -DWITH_XC_YUBIKEY=OFF    \
+          -DWITH_XC_AUTOTYPE=ON          \
+          -DWITH_XC_BROWSER=ON           \
+          -DWITH_XC_SSHAGENT=ON          \
+          -DWITH_XC_KEESHARE=ON          \
+          -DWITH_XC_FDOSECRETS=OFF       \
+          -DWITH_XC_NETWORKING=OFF       \
+          -DWITH_XC_YUBIKEY=OFF          \
           ..
         # cmake --build .. --config Release;
         # cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DWITH_XC_ALL=ON -DWITH_XC_YUBIKEY=OFF -DKEEPASSXC_BUILD_TYPE=Release ..
+
+    - name: build - MSYS - cmake
+      if: inputs.build_tool == 'MSYS'
+      continue-on-error: true
+      shell: bash
+      run: |
+        mkdir build && cd build
+        cmake -G "MSYS Makefiles"    \
+          -DWITH_XC_AUTOTYPE=ON      \
+          -DWITH_XC_BROWSER=ON       \
+          -DWITH_XC_SSHAGENT=ON      \
+          -DWITH_XC_KEESHARE=ON      \
+          -DWITH_XC_FDOSECRETS=OFF   \
+          -DWITH_XC_NETWORKING=OFF   \
+          -DWITH_XC_YUBIKEY=OFF      \
+          -DCMAKE_BUILD_TYPE=Release \
+          ..
 
     - name: Set the version string for the program
       continue-on-error: true
@@ -212,26 +229,14 @@ jobs:
         msystem: MINGW64
         install: make mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
 
-    - name: build - MSYS
+    - name: build - MSYS - Clang x64
       if: inputs.build_tool == 'MSYS'
       continue-on-error: true
       shell: msys2 {0}
       # make -j4 package
       run: |
-        gcc --version
-        mkdir build
-        cd build
-        cmake -G "MSYS Makefiles" \
-          -DWITH_XC_AUTOTYPE=ON    \
-          -DWITH_XC_BROWSER=ON     \
-          -DWITH_XC_SSHAGENT=ON    \
-          -DWITH_XC_KEESHARE=ON    \
-          -DWITH_XC_FDOSECRETS=OFF \
-          -DWITH_XC_NETWORKING=OFF \
-          -DWITH_XC_YUBIKEY=OFF    \
-          -DCMAKE_BUILD_TYPE=Release \
-          ..
-        make -j"$(nproc)"  CLANG=1 package
+        clang --version
+        make -j"$(nproc)" CLANG=1 package
 
     - name: Archive Release
       continue-on-error: true
