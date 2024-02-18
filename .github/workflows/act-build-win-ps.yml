@@ -29,6 +29,7 @@ on:
           - 'cmake'
           - 'make'
           - 'release-tool'
+          - 'MSYS'
         default: cmake
         required: true
       SED_STUFF:
@@ -80,6 +81,12 @@ jobs:
     - name: Checkout repository
       uses: deep-soft/checkout@v4
 
+    - name: Install tools
+      continue-on-error: true
+      # choco install ruby
+      run: |
+        gem install asciidoctor
+
 #    - name: code fix
 #      continue-on-error: true
 #      shell: bash
@@ -104,6 +111,7 @@ jobs:
         bash bins/sed-stuff.sh "_" "${{ inputs.SED_STUFF_PARAMS }}"
 
     - name: Set MSVC environment
+      if: inputs.build_tool != 'MSYS'
       uses: deep-soft/msvc-dev-cmd@v1
       with:
         arch: x64
@@ -114,6 +122,7 @@ jobs:
         vsversion: 17.8
 
     - name: Setup vcpkg with Github Actions binary cache
+      if: inputs.build_tool != 'MSYS'
       continue-on-error: true
       uses: deep-soft/run-vcpkg@v11
       with:
@@ -121,6 +130,7 @@ jobs:
         vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
 
     - name: Install vcpkg dependencies
+      if: inputs.build_tool != 'MSYS'
       continue-on-error: true
       shell: bash
       run: |
@@ -130,13 +140,8 @@ jobs:
         # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
 
-    - name: Install tools
-      continue-on-error: true
-      # choco install ruby
-      run: |
-        gem install asciidoctor
-
     - name: cmake - configure
+      if: inputs.build_tool != 'MSYS'
       continue-on-error: true
       shell: bash
       run: |
@@ -199,6 +204,26 @@ jobs:
       continue-on-error: true
       # shell: powershell
       run: ./release-tool.ps1 -build -version ${{ env.PROG_VERSION }} -Vcpkg ${{ env.VCPKG_ROOT }}
+
+    - name: build - MSYS
+      if: inputs.build_tool == 'MSYS'
+      continue-on-error: true
+      shell: msys2 {0}
+      # make -j4 package
+      run: |
+        mkdir build
+        cd build
+        cmake -G "MSYS Makefiles" \
+          -DWITH_XC_AUTOTYPE=ON    \
+          -DWITH_XC_BROWSER=ON     \
+          -DWITH_XC_SSHAGENT=ON    \
+          -DWITH_XC_KEESHARE=ON    \
+          -DWITH_XC_FDOSECRETS=OFF \
+          -DWITH_XC_NETWORKING=OFF \
+          -DWITH_XC_YUBIKEY=OFF    \
+          -DCMAKE_BUILD_TYPE=Release \
+          ..
+        make -j"$(nproc)" package
 
     - name: Archive Release
       continue-on-error: true
