@@ -233,7 +233,7 @@ jobs:
       if: inputs.build_tool == 'MSYS'
       continue-on-error: true
       shell: msys2 {0}
-      # make -j4 package
+      working-directory: ${{github.workspace}}/build
       run: |
         gcc --version
         make -j"$(nproc)" package
