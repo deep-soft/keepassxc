@@ -68,8 +68,12 @@ jobs:
       run: |
         sed -ibak "s!#include \"QuickUnlockInterface.h\";!#include \"QuickUnlockInterface.h\"!" "src/quickunlock/WindowsHello.h"
         grep "QuickUnlockInterface" "src/quickunlock/WindowsHello.h"
-        sed -ibak "s!#include <Windows.h>!#include <Windows.h>\n#include <winuser.h>!" "src/gui/osutils/winutils/WinUtils.cpp"
-        grep "winuser.h" "src/gui/osutils/winutils/WinUtils.cpp"
+
+        #sed -ibak "s!#include <Windows.h>!#include <Windows.h>\n#include <winuser.h>!" "src/gui/osutils/winutils/WinUtils.cpp"
+        #grep "winuser.h" "src/gui/osutils/winutils/WinUtils.cpp"
+
+        sed -ibak "s!#include <Windows.h>!#include <Windows.h>\n#define WDA_EXCLUDEFROMCAPTURE 0x00000011!" "src/gui/osutils/winutils/WinUtils.cpp"
+        grep "WDA_EXCLUDEFROMCAPTURE" "src/gui/osutils/winutils/WinUtils.cpp"
 
     - name: Set MSVC environment
       uses: deep-soft/msvc-dev-cmd@v1
