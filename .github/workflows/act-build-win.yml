@@ -1,5 +1,5 @@
-# 2024-02-18 14:00
-name: "Build - Win - release-tool or cmake"
+# 2024-02-20 00:40
+name: "Build - Win"
 
 on:
 #  push:
