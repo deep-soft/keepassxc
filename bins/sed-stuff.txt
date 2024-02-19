@@ -34,7 +34,7 @@ F:src/quickunlock/QuickUnlockInterface.cpp
 
 #7
 S:#define QUICKUNLOCK_IMPLEMENTATION WindowsHello
-R:// #define QUICKUNLOCK_IMPLEMENTATION WindowsHello
+R:#define QUICKUNLOCK_IMPLEMENTATION NoQuickUnlock
 F:src/quickunlock/QuickUnlockInterface.cpp
 
 #EOF#
