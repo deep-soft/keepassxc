@@ -201,7 +201,7 @@ jobs:
       run: |
         echo "PROG_VERSION=${{ env.PROG_VERSION }}"
 
-    - name: Build - msbuild
+    - name: Build - msbuild - solution
       if: inputs.build_tool == 'msbuild'
       continue-on-error: true
       working-directory: ${{github.workspace}}/build
@@ -210,6 +210,13 @@ jobs:
 #        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        PACKAGE.vcxproj
 #        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
 #        msbuild -m /property:Configuration=${{ inputs.build_config }} /property:Platform=${{ inputs.platform_sln }} KeePassXC.sln
+
+    - name: Build - msbuild - package
+      if: inputs.build_tool == 'msbuild'
+      continue-on-error: true
+      working-directory: ${{github.workspace}}/build
+      run: |
+        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        PACKAGE.vcxproj
 
     - name: build - cmake
       if: inputs.build_tool == 'cmake'
