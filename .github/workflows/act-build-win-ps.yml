@@ -29,7 +29,7 @@ on:
           - 'cmake'
           - 'release-tool'
           - 'MSYS'
-        default: cmake
+        default: msbuild
         required: true
       SED_STUFF:
         description: SED_STUFF
