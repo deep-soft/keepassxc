@@ -256,11 +256,11 @@ jobs:
         echo ".exp" >  keepass-prep.exclude
         echo ".lib" >> keepass-prep.exclude
         mkdir Output
-        xcopy /E /F /Y ..\build\src\proxy\Release\* Output\* /EXCLUDE:keepass-prep.exclude
-        xcopy /E /F /Y ..\build\src\cli\Release\* Output\* /EXCLUDE:keepass-prep.exclude
-        xcopy /E /F /Y ..\build\src\autotype\windows\Release\* Output\* /EXCLUDE:keepass-prep.exclude
-        xcopy /E /F /Y ..\build\src\Release\* Output\* /EXCLUDE:keepass-prep.exclude
-        xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-${{ env.PROG_VERSION }}-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y .\build\src\proxy\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y .\build\src\cli\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y .\build\src\autotype\windows\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y .\build\src\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y .\build\_CPack_Packages\win64\ZIP\KeePassXC-${{ env.PROG_VERSION }}-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
 
     - name: Sign files
       uses: deep-soft/code-sign-action@v9
@@ -287,7 +287,7 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
+        tag_name: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
         files: |
           ${{ env.ZIP_ARCHIVE_RELEASE }}
 
