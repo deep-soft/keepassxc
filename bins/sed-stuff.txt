@@ -22,4 +22,9 @@ S:cmake_minimum_required(VERSION 3.3.0)
 R:cmake_minimum_required(VERSION 3.20.4)
 F:CMakeLists.txt
 
+#5
+S:list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
+R:# list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
+F:src/CMakeLists.txt
+
 #EOF#
