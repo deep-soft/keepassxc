@@ -27,4 +27,14 @@ S:list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
 R:# list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
 F:src/CMakeLists.txt
 
+#6
+S:#include "WindowsHello.h"
+R:// #include "WindowsHello.h"
+F:src/quickunlock/QuickUnlockInterface.cpp
+
+#7
+S:#define QUICKUNLOCK_IMPLEMENTATION WindowsHello
+R:// #define QUICKUNLOCK_IMPLEMENTATION WindowsHello
+F:src/quickunlock/QuickUnlockInterface.cpp
+
 #EOF#
