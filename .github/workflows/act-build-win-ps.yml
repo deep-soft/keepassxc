@@ -212,6 +212,13 @@ jobs:
 #        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
 #        msbuild -m /property:Configuration=${{ inputs.build_config }} /property:Platform=${{ inputs.platform_sln }} KeePassXC.sln
 
+    - name: Build - msbuild - install
+      if: inputs.build_tool == 'msbuild'
+      continue-on-error: true
+      working-directory: ${{github.workspace}}/build
+      run: |
+        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        INSTALL.vcxproj
+
     - name: Build - msbuild - package
       if: inputs.build_tool == 'msbuild'
       continue-on-error: true
@@ -241,12 +248,55 @@ jobs:
       run: |
         make CLANG=1 -j"$(nproc)" package
 
+    - name: Prepare to sign
+      continue-on-error: true
+      shell: cmd
+      run: |
+        echo ".exp" >  keepass-prep.exclude
+        echo ".lib" >> keepass-prep.exclude
+        mkdir Output
+        ::cd Output
+        xcopy /E /F /Y ..\build\src\proxy\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y ..\build\src\cli\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y ..\build\src\autotype\windows\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y ..\build\src\Release\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-2.8.0-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
+
+    - name: Sign files
+      uses: deep-soft/code-sign-action@v9
+      with:
+        certificate:       '${{ secrets.WINDOWS_PFX_BASE64 }}'
+        password:          '${{ secrets.WINDOWS_PFX_PASSWORD }}'
+        certificatesha1:   '${{ secrets.WINDOWS_PFX_SHA1_THUMBPRINT }}'
+        # certificatename: '${{ secrets.CERTNAME }}'
+        folder:            './Output/'
+        recursive: true
+
+    - name: Archive Release
+      continue-on-error: true
+      uses: deep-soft/zip-release@v2
+      with:
+        type: 'zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}.zip'
+        directory: './Output'
+        env_variable: 'ZIP_ARCHIVE_RELEASE'
+        # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
+
     - name: Publish Release
       continue-on-error: true
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
         tag: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_RELEASE }}
+
+    - name: Publish Release package
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME_BUILD }}
         files: |
           ./build/*.zip
           ./build/*.msi
