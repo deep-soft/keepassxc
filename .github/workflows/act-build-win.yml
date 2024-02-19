@@ -51,14 +51,14 @@ on:
         required: true
 
 env:
-  TAG_NAME:     'keepassxc'
+  TAG_NAME:       'keepassxc'
   TAG_NAME_BUILD: 'keepassxc-build'
-  TAG_NAME_ALL: 'keepassxc-ALL'
-  PROG_NAME:    'keepassxc'
-  PROG_VERSION: '1.1.1'
-  DRAFT:        true
-  ARCH:         'amd64'
-  GUI:          'win'
+  TAG_NAME_ALL:   'keepassxc-ALL'
+  PROG_NAME:      'keepassxc'
+  PROG_VERSION:   '1.1.1'
+  DRAFT:          true
+  ARCH:           'amd64'
+  GUI:            'win'
   VCPKG_COMMIT_ID:      "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   
@@ -250,17 +250,17 @@ jobs:
 
     - name: Prepare to sign
       continue-on-error: true
+        #xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-2.8.0-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
       shell: cmd
       run: |
         echo ".exp" >  keepass-prep.exclude
         echo ".lib" >> keepass-prep.exclude
         mkdir Output
-        ::cd Output
         xcopy /E /F /Y ..\build\src\proxy\Release\* Output\* /EXCLUDE:keepass-prep.exclude
         xcopy /E /F /Y ..\build\src\cli\Release\* Output\* /EXCLUDE:keepass-prep.exclude
         xcopy /E /F /Y ..\build\src\autotype\windows\Release\* Output\* /EXCLUDE:keepass-prep.exclude
         xcopy /E /F /Y ..\build\src\Release\* Output\* /EXCLUDE:keepass-prep.exclude
-        xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-2.8.0-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
+        xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-${{ env.PROG_VERSION }}-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
 
     - name: Sign files
       uses: deep-soft/code-sign-action@v9
