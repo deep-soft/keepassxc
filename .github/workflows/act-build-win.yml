@@ -253,8 +253,9 @@ jobs:
         #xcopy /E /F /Y ..\build\_CPack_Packages\win64\ZIP\KeePassXC-2.8.0-Win64\* Output\* /EXCLUDE:keepass-prep.exclude
       shell: cmd
       run: |
-        echo ".exp" >  keepass-prep.exclude
-        echo ".lib" >> keepass-prep.exclude
+        echo .exp >  keepass-prep.exclude
+        echo .lib >> keepass-prep.exclude
+        echo /translations/ >> keepass-prep.exclude
         mkdir Output
         xcopy /E /F /Y .\build\src\proxy\Release\* Output\* /EXCLUDE:keepass-prep.exclude
         xcopy /E /F /Y .\build\src\cli\Release\* Output\* /EXCLUDE:keepass-prep.exclude
