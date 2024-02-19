@@ -201,7 +201,8 @@ jobs:
       continue-on-error: true
       working-directory: ${{github.workspace}}/build
       run: |
-        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        PACKAGE.vcxproj
+        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
+#        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        PACKAGE.vcxproj
 #        msbuild -m /property:Configuration=Release                    /property:Platform=x64                        KeePassXC.sln
 #        msbuild -m /property:Configuration=${{ inputs.build_config }} /property:Platform=${{ inputs.platform_sln }} KeePassXC.sln
 
@@ -234,7 +235,7 @@ jobs:
         type: 'zip'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}.zip'
         directory: './build'
-        env_variable: 'ZIP_ARCHIVE_RELEASE'
+        env_variable: 'ZIP_ARCHIVE_BUILD'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
     - name: Publish Release
@@ -242,9 +243,19 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag_name: ${{ env.TAG_NAME }}-${{ env.GUI }}
+        tag_name: ${{ env.TAG_NAME }}-build-${{ env.GUI }}
         files: |
-          ${{ env.ZIP_ARCHIVE_RELEASE }}
+          ./build/*.zip
+          ./build/*.msi
+
+    - name: Publish Release
+      continue-on-error: true
+      uses: deep-soft/action-gh-release@v2.1
+      with:
+        draft: ${{ env.DRAFT }}
+        tag_name: ${{ env.TAG_NAME }}-build-${{ env.GUI }}
+        files: |
+          ${{ env.ZIP_ARCHIVE_BUILD }}
 
     - name: Archive Release - NoVCPKG
       if: ${{ inputs.archive-NoVCPKG }}
