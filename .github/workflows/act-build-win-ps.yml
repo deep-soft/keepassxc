@@ -52,6 +52,7 @@ on:
 
 env:
   TAG_NAME:     'keepassxc'
+  TAG_NAME_BUILD: 'keepassxc-build'
   TAG_NAME_ALL: 'keepassxc-ALL'
   PROG_NAME:    'keepassxc'
   PROG_VERSION: '1.1.1'
@@ -245,7 +246,7 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag_name: ${{ env.TAG_NAME }}-build-${{ env.GUI }}
+        tag: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
         files: |
           ./build/*.zip
           ./build/*.msi
@@ -256,7 +257,7 @@ jobs:
       uses: deep-soft/zip-release@v2
       with:
         type: 'zip'
-        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build.zip'
         directory: './build'
         env_variable: 'ZIP_ARCHIVE_BUILD'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
@@ -267,7 +268,7 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag_name: ${{ env.TAG_NAME }}-build-${{ env.GUI }}
+        tag_name: ${{ env.TAG_NAME_BUILD }}
         files: |
           ${{ env.ZIP_ARCHIVE_BUILD }}
 
@@ -277,7 +278,7 @@ jobs:
       uses: deep-soft/zip-release@v2
       with:
         type: 'zip'
-        filename: '${{ env.PROG_NAME }}-${{ matrix.os }}-NoVCPKG.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG.zip'
         directory: './'
         exclusions: './vcpkg'
         env_variable: 'ZIP_ARCHIVE_NoVCPKG'
@@ -289,7 +290,7 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        tag_name: ${{ env.TAG_NAME_ALL }}
         files: |
           ${{ env.ZIP_ARCHIVE_NoVCPKG }}
 
@@ -299,7 +300,7 @@ jobs:
       uses: deep-soft/zip-release@v2
       with:
         type: 'zip'
-        filename: '${{ env.PROG_NAME }}-${{ matrix.os }}-ALL.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL.zip'
         directory: './'
         env_variable: 'ZIP_ARCHIVE_ALL'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
@@ -310,6 +311,6 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag_name: ${{ env.TAG_NAME_ALL }}-${{ env.GUI }}
+        tag_name: ${{ env.TAG_NAME_ALL }}
         files: |
           ${{ env.ZIP_ARCHIVE_ALL }}
