@@ -86,14 +86,13 @@ jobs:
     - name: Checkout repository
       uses: deep-soft/checkout@v4
 
-    - name: Setup cache
-      uses: deep-soft/cache@v4
-      with:
-        path: build
-        key: ccache-${{ matrix.job.os }}
-        restore-keys: |
-          ccache-${{ matrix.job.os }}-
-
+#    - name: Setup cache
+#      uses: deep-soft/cache@v4
+#      with:
+#        path: build
+#        key: ccache-${{ matrix.job.os }}
+#        restore-keys: |
+#          ccache-${{ matrix.job.os }}-
 
     - name: Install tools
       continue-on-error: true
