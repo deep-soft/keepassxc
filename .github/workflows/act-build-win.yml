@@ -139,7 +139,7 @@ jobs:
         toolset: 14.29
         vsversion: 17.8
 
-    - name: Set MSVC - VS 17.8 sdk 10.0.22000.0 toolset 14.29
+    - name: Set MSVC - latest
       if: ${{ inputs.build_tool != 'MSYS' && !inputs.msvc-17-8 }}
       #sdk: 10.0.22621.0
       #toolset: 14.38
