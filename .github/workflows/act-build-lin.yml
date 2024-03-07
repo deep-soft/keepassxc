@@ -90,7 +90,6 @@ jobs:
       uses: deep-soft/action-gh-release@v2.1
       with:
         draft: ${{ env.DRAFT }}
-        tag: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
-        allowUpdates: true
-        artifacts: |
+        tag_name: ${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}
+        files: |
           ${{ env.ZIP_RELEASE_ARCHIVE }}
