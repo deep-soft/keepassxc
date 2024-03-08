@@ -188,16 +188,18 @@ jobs:
       continue-on-error: true
       uses: deep-soft/run-vcpkg@v11
       with:
+        runVcpkgInstall: true
+        vcpkgConfigurationJsonGlob: vcpkg-configuration.json
+        vcpkgJsonGlob: vcpkg.json
         #vcpkgDirectory: C:\vcpkg
         #vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
-        runVcpkgInstall: true
 
-#    - name: Install vcpkg dependencies
-#      if: inputs.build_tool != 'MSYS'
-#      continue-on-error: true
-#      shell: bash
-#      run: |
-#        $VCPKG_ROOT/vcpkg install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+    - name: Install vcpkg dependencies
+      if: inputs.build_tool != 'MSYS'
+      continue-on-error: true
+      shell: bash
+      run: |
+        "$VCPKG_ROOT/vcpkg" install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
         # $VCPKG_ROOT/vcpkg install openvpn3
         # $VCPKG_ROOT/vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
@@ -211,7 +213,7 @@ jobs:
         mkdir build || true;
         cd build || true;
         cmake .. \
-          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+          -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT"/scripts/buildsystems/vcpkg.cmake \
           -DWITH_XC_AUTOTYPE=ON          \
           -DWITH_XC_BROWSER=ON           \
           -DWITH_XC_SSHAGENT=ON          \
