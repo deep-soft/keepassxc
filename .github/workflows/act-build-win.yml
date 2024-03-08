@@ -188,12 +188,19 @@ jobs:
       continue-on-error: true
       uses: deep-soft/run-vcpkg@v11
       with:
+        #VCPKG_BINARY_SOURCES:
+        #ACTIONS_CACHE_URL:
+        #ACTIONS_RUNTIME_TOKEN:
+        doNotCache: false
+        #vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+        #vcpkgDirectory: C:\vcpkg
+        #vcpkgGitURL:
+        #doNotUpdateVcpkg: 
         vcpkgConfigurationJsonGlob: vcpkg-configuration.json
         vcpkgJsonGlob: vcpkg.json
+        #VCPKG_CONFIGURATION_JSON_IGNORE_PATTERNS: 
         runVcpkgInstall: false
-        #runVcpkgInstall: true
-        #vcpkgDirectory: C:\vcpkg
-        #vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+        #VCPKG_DEFAULT_TRIPLET
 
 #    - name: Install vcpkg dependencies
 #      if: inputs.build_tool != 'MSYS'
