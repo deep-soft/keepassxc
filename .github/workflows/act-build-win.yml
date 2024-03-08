@@ -357,7 +357,7 @@ jobs:
       uses: deep-soft/zip-release@v3
       with:
         type: '7z'
-        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build'
         directory: './build'
         volume_size: 2g
         env_variable: 'ZIP_ARCHIVE_BUILD'
@@ -379,7 +379,7 @@ jobs:
       uses: deep-soft/zip-release@v3
       with:
         type: '7z'
-        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG'
         directory: './'
         exclusions: './vcpkg'
         volume_size: 2g
@@ -402,7 +402,7 @@ jobs:
       uses: deep-soft/zip-release@v3
       with:
         type: '7z'
-        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL.zip'
+        filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL'
         directory: './'
         volume_size: 2g
         env_variable: 'ZIP_ARCHIVE_ALL'
