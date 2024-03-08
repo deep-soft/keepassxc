@@ -109,7 +109,7 @@ jobs:
         VER_PATCH=$(grep "(KEEPASSXC_VERSION_PATCH" CMakeLists.txt  | awk -F'"' '{print $2}')
 
         echo "PROG_NAME=$PROG_NAME" >> $GITHUB_ENV
-        echo "PROG_VERSION=v$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
+        echo "PROG_VERSION=$VER_MAJOR.$VER_MINOR.$VER_PATCH" >> $GITHUB_ENV
 
     - name: print program name, version
       shell: bash
@@ -356,9 +356,10 @@ jobs:
       continue-on-error: true
       uses: deep-soft/zip-release@v2
       with:
-        type: 'zip'
+        type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build.zip'
         directory: './build'
+        volume_size: 2g
         env_variable: 'ZIP_ARCHIVE_BUILD'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
@@ -377,10 +378,11 @@ jobs:
       continue-on-error: true
       uses: deep-soft/zip-release@v2
       with:
-        type: 'zip'
+        type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG.zip'
         directory: './'
         exclusions: './vcpkg'
+        volume_size: 2g
         env_variable: 'ZIP_ARCHIVE_NoVCPKG'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
@@ -399,9 +401,10 @@ jobs:
       continue-on-error: true
       uses: deep-soft/zip-release@v2
       with:
-        type: 'zip'
+        type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL.zip'
         directory: './'
+        volume_size: 2g
         env_variable: 'ZIP_ARCHIVE_ALL'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
