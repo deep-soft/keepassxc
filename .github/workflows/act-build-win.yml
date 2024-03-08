@@ -354,7 +354,7 @@ jobs:
     - name: Archive Release
       if: ${{ inputs.archive-build }}
       continue-on-error: true
-      uses: deep-soft/zip-release@v2
+      uses: deep-soft/zip-release@v3
       with:
         type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build.zip'
@@ -376,7 +376,7 @@ jobs:
     - name: Archive Release - NoVCPKG
       if: ${{ inputs.archive-NoVCPKG }}
       continue-on-error: true
-      uses: deep-soft/zip-release@v2
+      uses: deep-soft/zip-release@v3
       with:
         type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG.zip'
@@ -399,7 +399,7 @@ jobs:
     - name: Archive Release - ALL
       if: ${{ inputs.archive-all }}
       continue-on-error: true
-      uses: deep-soft/zip-release@v2
+      uses: deep-soft/zip-release@v3
       with:
         type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL.zip'
