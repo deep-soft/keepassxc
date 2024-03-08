@@ -66,6 +66,7 @@ void TestCli::initTestCase()
     QVERIFY(Crypto::init());
 
     Config::createTempFileInstance();
+    QLocale::setDefault(QLocale::c());
     Bootstrap::bootstrap();
 
     m_devNull.reset(new QFile());
@@ -2253,7 +2254,7 @@ void TestCli::testYubiKeyOption()
 
     YubiKey::instance()->findValidKeys();
 
-    auto keys = YubiKey::instance()->foundKeys();
+    const auto keys = YubiKey::instance()->foundKeys().keys();
     if (keys.isEmpty()) {
         QSKIP("No YubiKey devices were detected.");
     }
