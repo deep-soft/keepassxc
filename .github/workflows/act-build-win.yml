@@ -359,7 +359,7 @@ jobs:
         type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-build'
         directory: './build'
-        volume_size: 2g
+        volume_size: 2000M
         env_variable: 'ZIP_ARCHIVE_BUILD'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
@@ -382,7 +382,7 @@ jobs:
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-NoVCPKG'
         directory: './'
         exclusions: './vcpkg'
-        volume_size: 2g
+        volume_size: 2000M
         env_variable: 'ZIP_ARCHIVE_NoVCPKG'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
@@ -404,7 +404,7 @@ jobs:
         type: '7z'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ matrix.os }}-ALL'
         directory: './'
-        volume_size: 2g
+        volume_size: 2000M
         env_variable: 'ZIP_ARCHIVE_ALL'
         # archive name is ${{ env.ZIP_RELEASE_ARCHIVE }}
 
