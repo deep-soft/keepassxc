@@ -70,7 +70,7 @@ jobs:
         bash release-tool build --version develop
 
     - name: Archive Release
-      uses: deep-soft/zip-release@v2
+      uses: deep-soft/zip-release@v3
       with:
         type: 'zip'
         filename: '${{ env.PROG_NAME }}-${{ env.PROG_VERSION }}-${{ env.GUI }}.zip'
