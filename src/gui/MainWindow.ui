@@ -239,6 +239,12 @@
      <addaction name="actionExportHtml"/>
      <addaction name="actionExportXML"/>
     </widget>
+    <widget class="QMenu" name="menuRemoteSync">
+     <property name="title">
+      <string>Remote S&amp;ync…</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
     <addaction name="actionDatabaseNew"/>
     <addaction name="actionDatabaseOpen"/>
     <addaction name="menuRecentDatabases"/>
@@ -258,6 +264,7 @@
     <addaction name="actionImportPasskey"/>
     <addaction name="separator"/>
     <addaction name="actionDatabaseMerge"/>
+    <addaction name="menuRemoteSync"/>
     <addaction name="actionImport"/>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
@@ -335,6 +342,7 @@
     <addaction name="actionEntryAutoType"/>
     <addaction name="separator"/>
     <addaction name="actionEntryImportPasskey"/>
+    <addaction name="actionEntryRemovePasskey"/>
     <addaction name="separator"/>
     <addaction name="actionEntryOpenUrl"/>
     <addaction name="actionEntryDownloadIcon"/>
@@ -384,6 +392,7 @@
     <addaction name="actionAlwaysOnTop"/>
     <addaction name="actionAllowScreenCapture"/>
     <addaction name="actionShowPreviewPanel"/>
+    <addaction name="actionShowMenubar"/>
     <addaction name="actionShowToolbar"/>
     <addaction name="actionHideUsernames"/>
     <addaction name="actionHidePasswords"/>
@@ -438,6 +447,9 @@
    <property name="toolTip">
     <string>Quit Application</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Q</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
    </property>
@@ -468,6 +480,9 @@
    <property name="toolTip">
     <string>Open Database</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+O</string>
+   </property>
   </action>
   <action name="actionDatabaseSave">
    <property name="enabled">
@@ -475,6 +490,9 @@
    </property>
    <property name="text">
     <string>&amp;Save Database</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+S</string>
    </property>
   </action>
   <action name="actionDatabaseClose">
@@ -484,6 +502,9 @@
    <property name="text">
     <string>&amp;Close Database</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+W</string>
+   </property>
   </action>
   <action name="actionDatabaseNew">
    <property name="text">
@@ -491,6 +512,9 @@
    </property>
    <property name="toolTip">
     <string>Create Database</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionDatabaseMerge">
@@ -511,6 +535,9 @@
    <property name="toolTip">
     <string>Create Entry</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+N</string>
+   </property>
   </action>
   <action name="actionEntryEdit">
    <property name="enabled">
@@ -522,6 +549,9 @@
    <property name="toolTip">
     <string>Edit Entry</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+E</string>
+   </property>
   </action>
   <action name="actionEntryDelete">
    <property name="enabled">
@@ -532,6 +562,9 @@
    </property>
    <property name="toolTip">
     <string>Delete Entry</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Del</string>
    </property>
   </action>
   <action name="actionGroupNew">
@@ -610,6 +643,9 @@
    <property name="toolTip">
     <string>Save Database As</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="actionDatabaseSecurity">
    <property name="enabled">
@@ -632,6 +668,9 @@
    <property name="toolTip">
     <string>Show Database Reports</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+R</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
    </property>
@@ -645,6 +684,9 @@
    </property>
    <property name="toolTip">
     <string>Show Database Settings</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+,</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -688,6 +730,9 @@
    <property name="toolTip">
     <string>Clone Entry</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+D</string>
+   </property>
   </action>
   <action name="actionEntryMoveUp">
    <property name="enabled">
@@ -698,6 +743,9 @@
    </property>
    <property name="toolTip">
     <string>Move Entry Up</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+Up</string>
    </property>
   </action>
   <action name="actionEntryMoveDown">
@@ -710,6 +758,9 @@
    <property name="toolTip">
     <string>Move Entry Down</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Alt+Down</string>
+   </property>
   </action>
   <action name="actionEntryCopyUsername">
    <property name="enabled">
@@ -720,6 +771,9 @@
    </property>
    <property name="toolTip">
     <string>Copy Username</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+B</string>
    </property>
   </action>
   <action name="actionEntryCopyPassword">
@@ -732,6 +786,9 @@
    <property name="toolTip">
     <string>Copy Password</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+C</string>
+   </property>
   </action>
   <action name="actionSettings">
    <property name="checkable">
@@ -742,6 +799,9 @@
    </property>
    <property name="toolTip">
     <string>Show Application Settings</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+,</string>
    </property>
    <property name="menuRole">
     <enum>QAction::PreferencesRole</enum>
@@ -772,6 +832,14 @@
    </property>
    <property name="text">
     <string>Import Passkey</string>
+   </property>
+  </action>
+  <action name="actionEntryRemovePasskey">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Remove Passkey From Entry</string>
    </property>
   </action>
   <action name="actionEntryAutoTypeUsername">
@@ -848,6 +916,9 @@
    <property name="text">
     <string>Download &amp;Favicon</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+D</string>
+   </property>
   </action>
   <action name="actionEntryOpenUrl">
    <property name="enabled">
@@ -855,6 +926,9 @@
    </property>
    <property name="text">
     <string>Open &amp;URL</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+U</string>
    </property>
   </action>
   <action name="actionLockDatabase">
@@ -864,6 +938,9 @@
    <property name="text">
     <string>&amp;Lock Database</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+L</string>
+   </property>
   </action>
   <action name="actionLockAllDatabases">
    <property name="enabled">
@@ -871,6 +948,9 @@
    </property>
    <property name="text">
     <string>Lock &amp;All Databases</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="actionEntryCopyTitle">
@@ -883,6 +963,9 @@
    <property name="toolTip">
     <string>Copy Title</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+I</string>
+   </property>
   </action>
   <action name="actionEntryCopyURL">
    <property name="enabled">
@@ -893,6 +976,9 @@
    </property>
    <property name="toolTip">
     <string>Copy URL</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+U</string>
    </property>
   </action>
   <action name="actionEntryCopyNotes">
@@ -956,6 +1042,9 @@
    <property name="text">
     <string>Show TOTP</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+T</string>
+   </property>
   </action>
   <action name="actionEntryTotpQRCode">
    <property name="text">
@@ -977,10 +1066,16 @@
    <property name="text">
     <string>Copy &amp;TOTP</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+T</string>
+   </property>
   </action>
   <action name="actionEntryCopyPasswordTotp">
    <property name="text">
     <string>Copy Password and TOTP</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Y</string>
    </property>
   </action>
   <action name="actionGroupEmptyRecycleBin">
@@ -1063,6 +1158,9 @@
    <property name="toolTip">
     <string>SSH Agent: Add Key</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+H</string>
+   </property>
   </action>
   <action name="actionEntryRemoveFromAgent">
    <property name="text">
@@ -1070,6 +1168,9 @@
    </property>
    <property name="toolTip">
     <string>SSH Agent: Remove Key</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+H</string>
    </property>
   </action>
   <action name="actionCompactMode">
@@ -1128,6 +1229,20 @@
    </property>
    <property name="toolTip">
     <string>Set Theme: Classic</string>
+   </property>
+  </action>
+  <action name="actionShowMenubar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Menubar</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Show Menubar</string>
    </property>
   </action>
   <action name="actionShowToolbar">
@@ -1212,6 +1327,9 @@
    </property>
    <property name="toolTip">
     <string notr="true">Perform Auto-Type: Entry Default</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+V</string>
    </property>
   </action>
   <action name="actionGroupClone">

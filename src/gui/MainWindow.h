@@ -39,6 +39,14 @@ class InactivityTimer;
 class SearchWidget;
 class MainWindowEventFilter;
 
+class ActionEventFilter : public QObject
+{
+    Q_OBJECT
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -125,6 +133,7 @@ private slots:
     void switchToNewDatabase();
     void switchToOpenDatabase();
     void switchToDatabaseFile(const QString& file);
+    void updateRemoteSyncMenuEntries();
     void databaseStatusChanged(DatabaseWidget* dbWidget);
     void databaseTabChanged(int tabIndex);
     void openRecentDatabase(QAction* action);
@@ -150,6 +159,8 @@ private slots:
     void updateProgressBar(int percentage, QString message);
     void updateEntryCountLabel();
     void focusSearchWidget();
+    void enableMenuAndToolbar();
+    void disableMenuAndToolbar();
 
 private:
     static const QString BaseWindowTitle;
@@ -168,6 +179,7 @@ private:
 
     const QScopedPointer<Ui::MainWindow> m_ui;
     SignalMultiplexer m_actionMultiplexer;
+    ActionEventFilter m_actionEventFilter;
     QPointer<QAction> m_clearHistoryAction;
     QPointer<QAction> m_searchWidgetAction;
     QPointer<QMenu> m_entryContextMenu;
@@ -199,6 +211,7 @@ private:
     QTimer m_trayIconTriggerTimer;
     QSystemTrayIcon::ActivationReason m_trayIconTriggerReason;
 
+    friend class ActionEventFilter;
     friend class MainWindowEventFilter;
 };
 

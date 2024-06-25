@@ -92,11 +92,13 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
 
     // GUI
     {Config::GUI_Language, {QS("GUI/Language"), Roaming, QS("system")}},
+    {Config::GUI_HideMenubar, {QS("GUI/HideMenubar"), Roaming, false}},
     {Config::GUI_HideToolbar, {QS("GUI/HideToolbar"), Roaming, false}},
     {Config::GUI_MovableToolbar, {QS("GUI/MovableToolbar"), Roaming, false}},
     {Config::GUI_HidePreviewPanel, {QS("GUI/HidePreviewPanel"), Roaming, false}},
     {Config::GUI_AlwaysOnTop, {QS("GUI/GUI_AlwaysOnTop"), Local, false}},
     {Config::GUI_ToolButtonStyle, {QS("GUI/ToolButtonStyle"), Roaming, Qt::ToolButtonIconOnly}},
+    {Config::GUI_LaunchAtStartup, {QS("GUI/LaunchAtStartup"), Roaming, false}},
     {Config::GUI_ShowTrayIcon, {QS("GUI/ShowTrayIcon"), Roaming, false}},
     {Config::GUI_TrayIconAppearance, {QS("GUI/TrayIconAppearance"), Roaming, {}}},
     {Config::GUI_MinimizeToTray, {QS("GUI/MinimizeToTray"), Roaming, false}},
@@ -134,7 +136,6 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::Security_LockDatabaseMinimize, {QS("Security/LockDatabaseMinimize"), Roaming, false}},
     {Config::Security_LockDatabaseScreenLock, {QS("Security/LockDatabaseScreenLock"), Roaming, true}},
     {Config::Security_RelockAutoType, {QS("Security/RelockAutoType"), Roaming, false}},
-    {Config::Security_PasswordsRepeatVisible, {QS("Security/PasswordsRepeatVisible"), Roaming, true}},
     {Config::Security_PasswordsHidden, {QS("Security/PasswordsHidden"), Roaming, true}},
     {Config::Security_PasswordEmptyPlaceholder, {QS("Security/PasswordEmptyPlaceholder"), Roaming, false}},
     {Config::Security_HidePasswordPreviewPanel, {QS("Security/HidePasswordPreviewPanel"), Roaming, true}},
@@ -218,7 +219,6 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
 
     // Messages
     {Config::Messages_NoLegacyKeyFileWarning, {QS("Messages/NoLegacyKeyFileWarning"), Roaming, false}},
-    {Config::Messages_Qt55CompatibilityWarning, {QS("Messages/Qt55CompatibilityWarning"), Local, false}},
     {Config::Messages_HidePreReleaseWarning, {QS("Messages/HidePreReleaseWarning"), Local, {}}}};
 
 // clang-format on
@@ -329,7 +329,7 @@ static const QHash<QString, Config::ConfigKey> deprecationMap = {
     {QS("security/passwordscleartext"), Config::Security_PasswordsHidden},
     {QS("security/passwordemptynodots"), Config::Security_PasswordEmptyPlaceholder},
     {QS("security/HidePasswordPreviewPanel"), Config::Security_HidePasswordPreviewPanel},
-    {QS("security/passwordsrepeat"), Config::Security_PasswordsRepeatVisible},
+    {QS("security/passwordsrepeat"), Config::Deleted},
     {QS("security/hidenotes"), Config::Security_HideNotes},
     {QS("KeeShare/Settings.own"), Config::KeeShare_Own},
     {QS("KeeShare/Settings.foreign"), Config::KeeShare_Foreign},
@@ -359,7 +359,7 @@ static const QHash<QString, Config::ConfigKey> deprecationMap = {
     {QS("generator/WordList"), Config::PasswordGenerator_WordList},
     {QS("generator/WordCase"), Config::PasswordGenerator_WordCase},
     {QS("generator/Type"), Config::PasswordGenerator_Type},
-    {QS("QtErrorMessageShown"), Config::Messages_Qt55CompatibilityWarning},
+    {QS("QtErrorMessageShown"), Config::Deleted},
     {QS("GUI/HidePasswords"), Config::Deleted},
     {QS("GUI/DarkTrayIcon"), Config::Deleted},
 
@@ -375,7 +375,8 @@ static const QHash<QString, Config::ConfigKey> deprecationMap = {
     {QS("Security/ResetTouchIdScreenlock"), Config::Deleted},
 
     // 2.8.0
-    {QS("GUI/AdvancedSettings"), Config::Deleted}};
+    {QS("GUI/AdvancedSettings"), Config::Deleted},
+    {QS("Security/PasswordsRepeatVisible"), Config::Deleted}};
 
 /**
  * Migrate settings from previous versions.
@@ -508,20 +509,8 @@ void Config::init(const QString& configFileName, const QString& localConfigFileN
 QPair<QString, QString> Config::defaultConfigFiles()
 {
     // Check if we are running in portable mode, if so store the config files local to the app
-#ifdef Q_OS_WIN
-    // Enable QFileInfo::isWritable check on Windows
-    extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-    qt_ntfs_permission_lookup++;
-#endif
-    auto portablePath = QCoreApplication::applicationDirPath().append("/%1");
-    auto portableFile = portablePath.arg(".portable");
-    bool isPortable = QFile::exists(portableFile) && QFileInfo(portableFile).isWritable();
-#ifdef Q_OS_WIN
-    qt_ntfs_permission_lookup--;
-#endif
-
-    if (isPortable) {
-        return {portablePath.arg("config/keepassxc.ini"), portablePath.arg("config/keepassxc_local.ini")};
+    if (isPortable()) {
+        return {portableConfigDir().append("/keepassxc.ini"), portableConfigDir().append("/keepassxc_local.ini")};
     }
 
     QString configPath;
@@ -596,6 +585,27 @@ void Config::createTempFileInstance()
     Q_UNUSED(openResult);
     m_instance = new Config(tmpFile->fileName(), "", qApp);
     tmpFile->setParent(m_instance);
+}
+
+bool Config::isPortable()
+{
+#ifdef Q_OS_WIN
+    // Enable QFileInfo::isWritable check on Windows
+    extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+    qt_ntfs_permission_lookup++;
+#endif
+    auto portablePath = QCoreApplication::applicationDirPath().append("/%1");
+    auto portableFile = portablePath.arg(".portable");
+    auto isPortable = QFile::exists(portableFile) && QFileInfo(portableFile).isWritable();
+#ifdef Q_OS_WIN
+    qt_ntfs_permission_lookup--;
+#endif
+    return isPortable;
+}
+
+QString Config::portableConfigDir()
+{
+    return QCoreApplication::applicationDirPath().append("/config");
 }
 
 QList<Config::ShortcutEntry> Config::getShortcuts() const

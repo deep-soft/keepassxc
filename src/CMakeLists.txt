@@ -16,20 +16,6 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-find_library(ZXCVBN_LIBRARIES zxcvbn)
-if(NOT ZXCVBN_LIBRARIES)
-    add_library(zxcvbn STATIC zxcvbn/zxcvbn.c)
-    # Disable error-level shadow issues
-    if(CC_HAS_Wshadow_compatible_local)
-        set_property(SOURCE zxcvbn/zxcvbn.c APPEND PROPERTY COMPILE_OPTIONS "-Wno-shadow-compatible-local")
-    endif()
-    if(CC_HAS_Wshadow_local)
-        set_property(SOURCE zxcvbn/zxcvbn.c APPEND PROPERTY COMPILE_OPTIONS "-Wno-shadow-local")
-    endif()
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/zxcvbn)
-    set(ZXCVBN_LIBRARIES zxcvbn)
-endif(NOT ZXCVBN_LIBRARIES)
-
 set(keepassx_SOURCES
         core/Alloc.cpp
         core/AutoTypeAssociations.cpp
@@ -129,6 +115,7 @@ set(keepassx_SOURCES
         gui/ApplicationSettingsWidget.cpp
         gui/Icons.cpp
         gui/SearchWidget.cpp
+        gui/SettingsWidget.cpp
         gui/SortFilterHideProxyModel.cpp
         gui/SquareSvgWidget.cpp
         gui/ShortcutSettingsPage.cpp
@@ -166,6 +153,10 @@ set(keepassx_SOURCES
         gui/dbsettings/DatabaseSettingsWidgetMetaDataSimple.cpp
         gui/dbsettings/DatabaseSettingsWidgetEncryption.cpp
         gui/dbsettings/DatabaseSettingsWidgetDatabaseKey.cpp
+        gui/remote/DatabaseSettingsWidgetRemote.cpp
+        gui/remote/RemoteHandler.cpp
+        gui/remote/RemoteProcess.cpp
+        gui/remote/RemoteSettings.cpp
         gui/reports/ReportsWidget.cpp
         gui/reports/ReportsDialog.cpp
         gui/reports/ReportsWidgetHealthcheck.cpp
@@ -177,7 +168,6 @@ set(keepassx_SOURCES
         gui/osutils/OSUtilsBase.cpp
         gui/osutils/ScreenLockListener.cpp
         gui/osutils/ScreenLockListenerPrivate.cpp
-        gui/settings/SettingsWidget.cpp
         gui/widgets/ElidedLabel.cpp
         gui/widgets/KPToolBar.cpp
         gui/widgets/PopupHelpWidget.cpp

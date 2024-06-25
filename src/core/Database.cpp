@@ -33,6 +33,10 @@
 #include <QTemporaryFile>
 #include <QTimer>
 
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#endif
+
 QHash<QUuid, QPointer<Database>> Database::s_uuidMap;
 
 Database::Database()
@@ -272,7 +276,7 @@ bool Database::saveAs(const QString& filePath, SaveAction action, const QString&
 
     // Add random data to prevent side-channel data deduplication attacks
     int length = Random::instance()->randomUIntRange(64, 512);
-    m_metadata->customData()->set("KPXC_RANDOM_SLUG", Random::instance()->randomArray(length).toHex());
+    m_metadata->customData()->set(CustomData::RandomSlug, Random::instance()->randomArray(length).toHex());
 
     // Prevent destructive operations while saving
     QMutexLocker locker(&m_saveMutex);
@@ -280,6 +284,11 @@ bool Database::saveAs(const QString& filePath, SaveAction action, const QString&
     QFileInfo fileInfo(filePath);
     auto realFilePath = fileInfo.exists() ? fileInfo.canonicalFilePath() : fileInfo.absoluteFilePath();
     bool isNewFile = !QFile::exists(realFilePath);
+
+#ifdef Q_OS_WIN
+    bool isHidden = fileInfo.isHidden();
+#endif
+
     bool ok = AsyncTask::runAndWaitForFuture([&] { return performSave(realFilePath, action, backupFilePath, error); });
     if (ok) {
         setFilePath(filePath);
@@ -287,6 +296,13 @@ bool Database::saveAs(const QString& filePath, SaveAction action, const QString&
         if (isNewFile) {
             QFile::setPermissions(realFilePath, QFile::ReadUser | QFile::WriteUser);
         }
+
+#ifdef Q_OS_WIN
+        if (isHidden) {
+            SetFileAttributes(realFilePath.toStdString().c_str(), FILE_ATTRIBUTE_HIDDEN);
+        }
+#endif
+
         m_fileWatcher->start(realFilePath, 30, 1);
     } else {
         // Saving failed, don't rewatch file since it does not represent our database
@@ -302,10 +318,8 @@ bool Database::performSave(const QString& filePath, SaveAction action, const QSt
         backupDatabase(filePath, backupFilePath);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     QFileInfo info(filePath);
     auto createTime = info.exists() ? info.birthTime() : QDateTime::currentDateTime();
-#endif
 
     switch (action) {
     case Atomic: {
@@ -316,10 +330,8 @@ bool Database::performSave(const QString& filePath, SaveAction action, const QSt
                 return false;
             }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
             // Retain original creation time
             saveFile.setFileTime(createTime, QFile::FileBirthTime);
-#endif
 
             if (saveFile.commit()) {
                 // successfully saved database file
@@ -352,10 +364,8 @@ bool Database::performSave(const QString& filePath, SaveAction action, const QSt
                 // successfully saved the database
                 tempFile.setAutoRemove(false);
                 QFile::setPermissions(filePath, perms);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 // Retain original creation time
                 tempFile.setFileTime(createTime, QFile::FileBirthTime);
-#endif
                 return true;
             } else if (backupFilePath.isEmpty() || !restoreDatabase(filePath, backupFilePath)) {
                 // Failed to copy new database in place, and
@@ -396,6 +406,9 @@ bool Database::performSave(const QString& filePath, SaveAction action, const QSt
 
 bool Database::writeDatabase(QIODevice* device, QString* error)
 {
+    Q_ASSERT(m_data.key);
+    Q_ASSERT(m_data.transformedDatabaseKey);
+
     PasswordKey oldTransformedKey;
     if (m_data.key->isEmpty()) {
         oldTransformedKey.setRawKey(m_data.transformedDatabaseKey->rawKey());
@@ -723,7 +736,7 @@ void Database::updateTagList()
         }
     }
 
-    m_tagList = tagSet.toList();
+    m_tagList = tagSet.values();
     m_tagList.sort();
     emit tagListUpdated();
 }
@@ -751,18 +764,29 @@ Database::CompressionAlgorithm Database::compressionAlgorithm() const
 
 QByteArray Database::transformedDatabaseKey() const
 {
+    Q_ASSERT(m_data.transformedDatabaseKey);
+    if (!m_data.transformedDatabaseKey) {
+        return {};
+    }
     return m_data.transformedDatabaseKey->rawKey();
 }
 
 QByteArray Database::challengeResponseKey() const
 {
+    Q_ASSERT(m_data.challengeResponseKey);
+    if (!m_data.challengeResponseKey) {
+        return {};
+    }
     return m_data.challengeResponseKey->rawKey();
 }
 
 bool Database::challengeMasterSeed(const QByteArray& masterSeed)
 {
+    Q_ASSERT(m_data.key);
+    Q_ASSERT(m_data.masterSeed);
+
     m_keyError.clear();
-    if (m_data.key) {
+    if (m_data.key && m_data.masterSeed) {
         m_data.masterSeed->setRawKey(masterSeed);
         QByteArray response;
         bool ok = m_data.key->challenge(masterSeed, response, &m_keyError);
@@ -808,8 +832,7 @@ bool Database::setKey(const QSharedPointer<const CompositeKey>& key,
     m_keyError.clear();
 
     if (!key) {
-        m_data.key.reset();
-        m_data.transformedDatabaseKey.reset(new PasswordKey());
+        m_data.resetKeys();
         return true;
     }
 
@@ -1012,6 +1035,13 @@ void Database::stopModifiedTimer()
 
 QUuid Database::publicUuid()
 {
+    // This feature requires KDBX4
+    if (m_data.formatVersion < KeePass2::FILE_VERSION_4) {
+        // Return the file path hash as a UUID for KDBX3
+        QCryptographicHash hasher(QCryptographicHash::Sha256);
+        hasher.addData(filePath().toUtf8());
+        return QUuid::fromRfc4122(hasher.result().left(16));
+    }
 
     if (!publicCustomData().contains("KPXC_PUBLIC_UUID")) {
         publicCustomData().insert("KPXC_PUBLIC_UUID", QUuid::createUuid().toRfc4122());
@@ -1019,4 +1049,14 @@ QUuid Database::publicUuid()
     }
 
     return QUuid::fromRfc4122(publicCustomData()["KPXC_PUBLIC_UUID"].toByteArray());
+}
+
+void Database::markAsTemporaryDatabase()
+{
+    m_isTemporaryDatabase = true;
+}
+
+bool Database::isTemporaryDatabase()
+{
+    return m_isTemporaryDatabase;
 }

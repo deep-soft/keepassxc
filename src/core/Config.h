@@ -74,11 +74,13 @@ public:
         LastDir,
 
         GUI_Language,
+        GUI_HideMenubar,
         GUI_HideToolbar,
         GUI_MovableToolbar,
         GUI_HidePreviewPanel,
         GUI_AlwaysOnTop,
         GUI_ToolButtonStyle,
+        GUI_LaunchAtStartup,
         GUI_ShowTrayIcon,
         GUI_TrayIconAppearance,
         GUI_MinimizeToTray,
@@ -115,7 +117,6 @@ public:
         Security_LockDatabaseMinimize,
         Security_LockDatabaseScreenLock,
         Security_RelockAutoType,
-        Security_PasswordsRepeatVisible,
         Security_PasswordsHidden,
         Security_PasswordEmptyPlaceholder,
         Security_HidePasswordPreviewPanel,
@@ -193,7 +194,6 @@ public:
         PasswordGenerator_Type,
 
         Messages_NoLegacyKeyFileWarning,
-        Messages_Qt55CompatibilityWarning,
         Messages_HidePreReleaseWarning,
 
         // Special internal value
@@ -222,6 +222,8 @@ public:
     static Config* instance();
     static void createConfigFromFile(const QString& configFileName, const QString& localConfigFileName = {});
     static void createTempFileInstance();
+    static bool isPortable();
+    static QString portableConfigDir();
 
 signals:
     void changed(ConfigKey key);

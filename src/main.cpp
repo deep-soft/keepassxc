@@ -52,10 +52,8 @@ int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR)
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && defined(Q_OS_WIN)
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
@@ -102,7 +100,7 @@ int main(int argc, char** argv)
     if (parser.isSet(debugInfoOption)) {
         QTextStream out(stdout, QIODevice::WriteOnly);
         QString debugInfo = Tools::debugInfo().append("\n").append(Crypto::debugInfo());
-        out << debugInfo << endl;
+        out << debugInfo << Qt::endl;
         return EXIT_SUCCESS;
     }
 
@@ -138,7 +136,7 @@ int main(int argc, char** argv)
     if (app.isAlreadyRunning()) {
         if (parser.isSet(lockOption)) {
             if (app.sendLockToInstance()) {
-                qInfo() << QObject::tr("Locked databases.").toUtf8().constData();
+                qInfo() << QObject::tr("Databases have been locked.").toUtf8().constData();
             } else {
                 qWarning() << QObject::tr("Database failed to lock.").toUtf8().constData();
                 return EXIT_FAILURE;
@@ -172,9 +170,7 @@ int main(int argc, char** argv)
     // Apply the configured theme before creating any GUI elements
     app.applyTheme();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     QGuiApplication::setDesktopFileName(app.property("KPXC_QUALIFIED_APPNAME").toString() + QStringLiteral(".desktop"));
-#endif
 
     Application::bootstrap(config()->get(Config::GUI_Language).toString());
 
@@ -198,7 +194,7 @@ int main(int argc, char** argv)
             // we always need consume a line of STDIN if --pw-stdin is set to clear out the
             // buffer for native messaging, even if the specified file does not exist
             QTextStream out(stdout, QIODevice::WriteOnly);
-            out << QObject::tr("Database password: ") << flush;
+            out << QObject::tr("Database password: ") << Qt::flush;
             password = Utils::getPassword();
         }
         mainWindow.openDatabase(filename, password, parser.value(keyfileOption));

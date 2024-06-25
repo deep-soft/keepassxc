@@ -661,23 +661,17 @@ void EditEntryWidget::updateSSHAgentKeyInfo()
     if (!key.fingerprint().isEmpty()) {
         m_sshAgentUi->fingerprintTextLabel->setText(key.fingerprint(QCryptographicHash::Md5) + "\n"
                                                     + key.fingerprint(QCryptographicHash::Sha256));
-    } else {
-        m_sshAgentUi->fingerprintTextLabel->setText(tr("(encrypted)"));
     }
 
-    if (!key.comment().isEmpty() || !key.encrypted()) {
+    if (!key.comment().isEmpty()) {
         m_sshAgentUi->commentTextLabel->setText(key.comment());
-    } else {
-        m_sshAgentUi->commentTextLabel->setText(tr("(encrypted)"));
-        m_sshAgentUi->decryptButton->setEnabled(true);
     }
+
+    m_sshAgentUi->decryptButton->setEnabled(key.encrypted());
 
     if (!key.publicKey().isEmpty()) {
         m_sshAgentUi->publicKeyEdit->document()->setPlainText(key.publicKey());
         m_sshAgentUi->copyToClipboardButton->setEnabled(true);
-    } else {
-        m_sshAgentUi->publicKeyEdit->document()->setPlainText(tr("(encrypted)"));
-        m_sshAgentUi->copyToClipboardButton->setDisabled(true);
     }
 
     // enable agent buttons only if we have an agent running
@@ -791,6 +785,7 @@ void EditEntryWidget::decryptPrivateKey()
     OpenSSHKey key;
 
     if (!getOpenSSHKey(key, true)) {
+        showMessage(tr("Failed to decrypt SSH key, ensure password is correct."), MessageWidget::Error);
         return;
     }
 
@@ -804,6 +799,7 @@ void EditEntryWidget::decryptPrivateKey()
                                                 + key.fingerprint(QCryptographicHash::Sha256));
     m_sshAgentUi->publicKeyEdit->document()->setPlainText(key.publicKey());
     m_sshAgentUi->copyToClipboardButton->setEnabled(true);
+    m_sshAgentUi->decryptButton->setEnabled(false);
 }
 
 void EditEntryWidget::copyPublicKey()
@@ -1173,21 +1169,23 @@ bool EditEntryWidget::commitEntry()
     toKeeAgentSettings(m_sshAgentSettings);
 #endif
 
+    // Begin entry update
+    if (!m_create) {
+        m_entry->beginUpdate();
+    }
+
 #ifdef WITH_XC_BROWSER
     if (config()->get(Config::Browser_Enabled).toBool()) {
         updateBrowser();
     }
 #endif
 
-    if (!m_create) {
-        m_entry->beginUpdate();
-    }
-
     updateEntryData(m_entry);
 
     if (!m_create) {
         m_entry->endUpdate();
     }
+    // End entry update
 
     m_historyModel->setEntries(m_entry->historyItems(), m_entry);
     setPageHidden(m_historyWidget, m_history || m_entry->historyItems().count() < 1);
@@ -1195,6 +1193,9 @@ bool EditEntryWidget::commitEntry()
 
     showMessage(tr("Entry updated successfully."), MessageWidget::Positive);
     setModified(false);
+    // Prevent a reload due to entry modified signals
+    m_entryModifiedTimer.stop();
+
     return true;
 }
 
@@ -1219,7 +1220,10 @@ void EditEntryWidget::updateEntryData(Entry* entry) const
     entry->setPassword(m_mainUi->passwordEdit->text());
     entry->setExpires(m_mainUi->expireCheck->isChecked());
     entry->setExpiryTime(m_mainUi->expireDatePicker->dateTime().toUTC());
-    entry->setTags(m_mainUi->tagsList->tags().toSet().toList().join(";")); // remove repeated tags
+
+    QStringList uniqueTags(m_mainUi->tagsList->tags());
+    uniqueTags.removeDuplicates();
+    entry->setTags(uniqueTags.join(";"));
 
     entry->setNotes(m_mainUi->notesEdit->toPlainText());
 

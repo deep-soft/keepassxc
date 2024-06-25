@@ -34,6 +34,9 @@
 
 #include "FileDialog.h"
 #include "MessageBox.h"
+#ifdef WITH_XC_BROWSER
+#include "browser/BrowserSettingsPage.h"
+#endif
 
 class ApplicationSettingsWidget::ExtraPage
 {
@@ -97,6 +100,9 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
     m_generalUi->setupUi(m_generalWidget);
     addPage(tr("General"), icons()->icon("preferences-other"), m_generalWidget);
     addPage(tr("Security"), icons()->icon("security-high"), m_secWidget);
+#ifdef WITH_XC_BROWSER
+    addSettingsPage(new BrowserSettingsPage());
+#endif
 
     if (!autoType()->isAvailable()) {
         m_generalUi->generalSettingsTabWidget->removeTab(1);
@@ -318,8 +324,6 @@ void ApplicationSettingsWidget::loadSettings()
     m_secUi->passwordPreviewCleartextCheckBox->setChecked(
         config()->get(Config::Security_HidePasswordPreviewPanel).toBool());
     m_secUi->hideTotpCheckBox->setChecked(config()->get(Config::Security_HideTotpPreviewPanel).toBool());
-    m_secUi->passwordsRepeatVisibleCheckBox->setChecked(
-        config()->get(Config::Security_PasswordsRepeatVisible).toBool());
     m_secUi->hideNotesCheckBox->setChecked(config()->get(Config::Security_HideNotes).toBool());
     m_secUi->NoConfirmMoveEntryToRecycleBinCheckBox->setChecked(
         config()->get(Config::Security_NoConfirmMoveEntryToRecycleBin).toBool());
@@ -433,7 +437,6 @@ void ApplicationSettingsWidget::saveSettings()
 
     config()->set(Config::Security_HidePasswordPreviewPanel, m_secUi->passwordPreviewCleartextCheckBox->isChecked());
     config()->set(Config::Security_HideTotpPreviewPanel, m_secUi->hideTotpCheckBox->isChecked());
-    config()->set(Config::Security_PasswordsRepeatVisible, m_secUi->passwordsRepeatVisibleCheckBox->isChecked());
     config()->set(Config::Security_HideNotes, m_secUi->hideNotesCheckBox->isChecked());
     config()->set(Config::Security_NoConfirmMoveEntryToRecycleBin,
                   m_secUi->NoConfirmMoveEntryToRecycleBinCheckBox->isChecked());

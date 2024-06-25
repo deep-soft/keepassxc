@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KeePassXC Team <team@keepassxc.org>
+ * Copyright (C) 2024 KeePassXC Team <team@keepassxc.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ public slots:
     void closeDatabaseFromSender();
     void unlockDatabaseInDialog(DatabaseWidget* dbWidget, DatabaseOpenDialog::Intent intent);
     void unlockDatabaseInDialog(DatabaseWidget* dbWidget, DatabaseOpenDialog::Intent intent, const QString& filePath);
+    void unlockDatabaseInDialogForSync(const QString& filePath);
     void unlockAnyDatabaseInDialog(DatabaseOpenDialog::Intent intent);
     void relockPendingDatabase();
 
@@ -87,6 +88,7 @@ public slots:
     void showPasskeys();
     void importPasskey();
     void importPasskeyToEntry();
+    void removePasskeyFromEntry();
 #endif
     void performGlobalAutoType(const QString& search);
     void performBrowserUnlock();
@@ -113,7 +115,7 @@ private slots:
 
 private:
     QSharedPointer<Database> execNewDatabaseWizard();
-    void updateLastDatabases(const QString& filename);
+    void updateLastDatabases(const QSharedPointer<Database>& database);
     bool warnOnExport();
     void displayUnlockDialog();
 

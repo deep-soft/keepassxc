@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2023 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2024 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2012 Felix Geyer <debfx@fobos.de>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 
 #include "EntryAttributes.h"
 #include "core/Global.h"
+#include "core/Tools.h"
 
 #include <QRegularExpression>
 #include <QUuid>
@@ -63,6 +64,16 @@ bool EntryAttributes::hasPasskey() const
     }
 
     return false;
+}
+
+void EntryAttributes::removePasskeyAttributes()
+{
+    const auto keyList = keys();
+    for (const auto& key : keyList) {
+        if (isPasskeyAttribute(key)) {
+            remove(key);
+        }
+    }
 }
 
 QList<QString> EntryAttributes::customKeys() const
@@ -238,7 +249,7 @@ void EntryAttributes::copyCustomKeysFrom(const EntryAttributes* other)
 bool EntryAttributes::areCustomKeysDifferent(const EntryAttributes* other)
 {
     // check if they are equal ignoring the order of the keys
-    if (keys().toSet() != other->keys().toSet()) {
+    if (Tools::asSet(keys()) != Tools::asSet(other->keys())) {
         return true;
     }
 
@@ -299,8 +310,8 @@ bool EntryAttributes::operator!=(const EntryAttributes& other) const
 
 QRegularExpressionMatch EntryAttributes::matchReference(const QString& text)
 {
-    static QRegularExpression referenceRegExp(
-        "\\{REF:(?<WantedField>[TUPANI])@(?<SearchIn>[TUPANIO]):(?<SearchText>[^}]+)\\}",
+    static const QRegularExpression referenceRegExp(
+        R"(\{REF:(?<WantedField>[TUPANI])@(?<SearchIn>[TUPANIO]):(?<SearchText>[^}]+)\})",
         QRegularExpression::CaseInsensitiveOption);
 
     return referenceRegExp.match(text);
