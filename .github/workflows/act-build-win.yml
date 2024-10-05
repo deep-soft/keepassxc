@@ -64,8 +64,8 @@ env:
   DRAFT:          true
   ARCH:           'amd64'
   GUI:            'win'
-  #VCPKG_COMMIT_ID:      "f7423ee180c4b7f40d43402c2feb3859161ef625"
-  #VCPKG_DIRECTORY:      "C:\\vcpkg"
+  VCPKG_COMMIT_ID:      "f7423ee180c4b7f40d43402c2feb3859161ef625"
+  VCPKG_DIRECTORY:      "C:\\vcpkg"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   
 jobs:
