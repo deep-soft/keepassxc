@@ -64,7 +64,8 @@ env:
   DRAFT:          true
   ARCH:           'amd64'
   GUI:            'win'
-  VCPKG_COMMIT_ID:      "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50"
+  VCPKG_COMMIT_ID:      "f7423ee180c4b7f40d43402c2feb3859161ef625"
+  VCPKG_DIRECTORY:      "C:\\vcpkg"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   
 jobs:
@@ -199,7 +200,7 @@ jobs:
         vcpkgConfigurationJsonGlob: vcpkg-configuration.json
         vcpkgJsonGlob: vcpkg.json
         #VCPKG_CONFIGURATION_JSON_IGNORE_PATTERNS: 
-        runVcpkgInstall: false
+        runVcpkgInstall: true
         #VCPKG_DEFAULT_TRIPLET
 
 #    - name: Install vcpkg dependencies
