@@ -64,8 +64,8 @@ env:
   DRAFT:          true
   ARCH:           'amd64'
   GUI:            'win'
-  VCPKG_COMMIT_ID:      "f7423ee180c4b7f40d43402c2feb3859161ef625"
-  VCPKG_DIRECTORY:      "C:\\vcpkg"
+  #VCPKG_COMMIT_ID:      "f7423ee180c4b7f40d43402c2feb3859161ef625"
+  #VCPKG_DIRECTORY:      "C:\\vcpkg"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   
 jobs:
@@ -193,22 +193,22 @@ jobs:
         #ACTIONS_CACHE_URL:
         #ACTIONS_RUNTIME_TOKEN:
         doNotCache: false
-        #vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
-        #vcpkgDirectory: C:\vcpkg
         #vcpkgGitURL:
         #doNotUpdateVcpkg: 
+        #VCPKG_CONFIGURATION_JSON_IGNORE_PATTERNS: 
+        runVcpkgInstall: false
+        #VCPKG_DEFAULT_TRIPLET
         vcpkgConfigurationJsonGlob: vcpkg-configuration.json
         vcpkgJsonGlob: vcpkg.json
-        #VCPKG_CONFIGURATION_JSON_IGNORE_PATTERNS: 
-        runVcpkgInstall: true
-        #VCPKG_DEFAULT_TRIPLET
+        vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+        vcpkgDirectory: ${{ env.VCPKG_DIRECTORY }}
 
-#    - name: Install vcpkg dependencies
+    - name: Install vcpkg dependencies
 #      if: inputs.build_tool != 'MSYS'
-#      continue-on-error: true
-#      shell: bash
-#      run: |
-#        "$VCPKG_ROOT/vcpkg" install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+      continue-on-error: true
+      shell: bash
+      run: |
+        "$VCPKG_ROOT/vcpkg" install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
         # $VCPKG_ROOT/vcpkg install openvpn3
         # $VCPKG_ROOT/vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
