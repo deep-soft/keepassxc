@@ -208,7 +208,8 @@ jobs:
       continue-on-error: true
       shell: bash
       run: |
-        "$VCPKG_ROOT/vcpkg" install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
+        "$VCPKG_ROOT/vcpkg" install
+#        "$VCPKG_ROOT/vcpkg" install argon2 botan minizip qt5 qt5-svg qt5-tools qt5-imageformats qt5-translations readline zlib libqrencode --triplet=x64-windows
         # $VCPKG_ROOT/vcpkg install openvpn3
         # $VCPKG_ROOT/vcpkg-ports install pkcs11-helper
         # $VCPKG_ROOT/vcpkg --overlay-ports=<openvpn>\contrib\vcpkg-ports install pkcs11-helper
