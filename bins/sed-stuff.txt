@@ -1,6 +1,6 @@
 #BOF#
 # sed-stuff.txt
-# 2024.02.18 13:00
+# 2024.10.06 08:00
 
 #1
 S:#include "QuickUnlockInterface.h";
@@ -22,9 +22,19 @@ S:cmake_minimum_required(VERSION 3.3.0)
 R:cmake_minimum_required(VERSION 3.20.4)
 F:CMakeLists.txt
 
+#4b
+S:cmake_minimum_required(VERSION 3.10.0)
+R:cmake_minimum_required(VERSION 3.20.4)
+F:CMakeLists.txt
+
 #5
 S:list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
 R:# list(APPEND keepassx_SOURCES quickunlock/WindowsHello.cpp)
+F:src/CMakeLists.txt
+
+#5b
+S:list(APPEND gui_SOURCES quickunlock/WindowsHello.cpp)
+R:# list(APPEND gui_SOURCES quickunlock/WindowsHello.cpp)
 F:src/CMakeLists.txt
 
 #6
