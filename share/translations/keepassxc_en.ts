@@ -1445,6 +1445,10 @@ Do you want to overwrite the passkey in %1 - %2?</source>
 Are you sure you want to import?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CsvParserModel</name>
@@ -1702,6 +1706,10 @@ Are you sure you want to continue with this file?.</source>
     </message>
     <message>
         <source>Hardware keys found, but no slots are configured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Press ESC again to close this database</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2819,6 +2827,10 @@ Disable safe saves and try again?</source>
     </message>
     <message>
         <source>Database file on disk cannot be unlocked with current credentials.&lt;br&gt;Enter new credentials and/or present hardware key to continue.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save backup database: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8683,18 +8695,6 @@ Kernel: %3 %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>malformed string</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>missing closing quote</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1: (row, col) %2,%3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>AES 256-bit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9230,6 +9230,22 @@ This option is deprecated, use --set-key-file instead.</source>
     </message>
     <message>
         <source>start minimized to the system tray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>malformed string, possible unescaped delimiter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>missing closing delimiter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1, row: %2, column: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
