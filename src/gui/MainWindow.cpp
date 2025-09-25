@@ -944,8 +944,20 @@ void MainWindow::updateMenuActionState()
     m_ui->actionEntryEdit->setEnabled(singleEntrySelected);
     m_ui->actionEntryExpire->setEnabled(multiEntrySelected);
     m_ui->actionEntryDelete->setEnabled(multiEntrySelected);
-    m_ui->actionEntryRestore->setVisible(multiEntrySelected && inRecycleBin);
-    m_ui->actionEntryRestore->setEnabled(multiEntrySelected && inRecycleBin);
+    if (dbWidget) {
+        if (dbWidget->database()->metadata()->recycleBinEnabled() && !inRecycleBin) {
+            m_ui->actionEntryDelete->setToolTip(
+                tr("Move selected entry(s) to the recycle bin", "", dbWidget->numberOfSelectedEntries()));
+        } else {
+            m_ui->actionEntryDelete->setToolTip(
+                tr("Permanently delete the selected entry(s)", "", dbWidget->numberOfSelectedEntries()));
+        }
+    } else {
+        m_ui->actionEntryDelete->setToolTip(tr("Delete Entry"));
+    }
+    bool hasRecycledEntries = (inDatabase && dbWidget && dbWidget->hasRecycledSelectedEntries());
+    m_ui->actionEntryRestore->setVisible(multiEntrySelected && hasRecycledEntries);
+    m_ui->actionEntryRestore->setEnabled(multiEntrySelected && hasRecycledEntries);
     if (dbWidget) {
         m_ui->actionEntryRestore->setText(tr("Restore Entry(s)", "", dbWidget->numberOfSelectedEntries()));
         m_ui->actionEntryRestore->setToolTip(tr("Restore Entry(s)", "", dbWidget->numberOfSelectedEntries()));
@@ -1672,9 +1684,16 @@ void MainWindow::applySettingsChanges()
         m_inactivityTimer->deactivate();
     }
 
-    m_ui->actionShowToolbar->setChecked(!config()->get(Config::GUI_HideToolbar).toBool());
-    m_ui->actionShowMenubar->setChecked(!config()->get(Config::GUI_HideMenubar).toBool());
-    m_ui->menubar->setHidden(config()->get(Config::GUI_HideMenubar).toBool());
+    auto hideToolbar = config()->get(Config::GUI_HideToolbar).toBool();
+    auto hideMenubar = config()->get(Config::GUI_HideMenubar).toBool();
+
+    m_ui->actionShowToolbar->setChecked(!hideToolbar);
+    m_ui->actionShowMenubar->setChecked(!hideMenubar);
+
+    // When menubar is hidden with setHidden() the menu keyboard shortcuts are disabled on Wayland,
+    // so force height of 0 instead and use maximumHeight() > 0 instead of isVisible() elsewhere
+    m_ui->menubar->setMaximumHeight(hideMenubar ? 0 : QWIDGETSIZE_MAX);
+
     m_ui->toolBar->setHidden(config()->get(Config::GUI_HideToolbar).toBool());
     auto movable = config()->get(Config::GUI_MovableToolbar).toBool();
     m_ui->toolBar->setMovable(movable);
@@ -1997,6 +2016,7 @@ void MainWindow::initViewMenu()
             restartApp(tr("You must restart the application to apply this setting. Would you like to restart now?"));
         } else {
             kpxcApp->applyTheme();
+            kpxcApp->applyFontSize();
         }
     });
 
@@ -2187,10 +2207,11 @@ MainWindowEventFilter::MainWindowEventFilter(QObject* parent)
     m_menubarTimer.setSingleShot(false);
     connect(&m_menubarTimer, &QTimer::timeout, this, [this] {
         auto mainwindow = getMainWindow();
-        if (mainwindow && mainwindow->m_ui->menubar->isVisible() && config()->get(Config::GUI_HideMenubar).toBool()) {
+        if (mainwindow && mainwindow->m_ui->menubar->maximumHeight() > 0
+            && config()->get(Config::GUI_HideMenubar).toBool()) {
             // If the menu bar is visible with no active menu, hide it
             if (!mainwindow->m_ui->menubar->activeAction()) {
-                mainwindow->m_ui->menubar->setVisible(false);
+                mainwindow->m_ui->menubar->setMaximumHeight(0);
                 m_altCoolDown.start();
                 m_menubarTimer.stop();
             }
@@ -2249,9 +2270,13 @@ bool MainWindowEventFilter::eventFilter(QObject* watched, QEvent* event)
         if (keyEvent->key() == Qt::Key_Alt && !keyEvent->modifiers() && config()->get(Config::GUI_HideMenubar).toBool()
             && !m_altCoolDown.isActive()) {
             auto menubar = mainWindow->m_ui->menubar;
-            menubar->setVisible(!menubar->isVisible());
-            if (menubar->isVisible()) {
-                menubar->setActiveAction(mainWindow->m_ui->menuFile->menuAction());
+            menubar->setMaximumHeight(menubar->maximumHeight() > 0 ? 0 : QWIDGETSIZE_MAX);
+            if (menubar->maximumHeight() > 0) {
+                QTimer::singleShot(0, [menubar, mainWindow] {
+                    // Run this with a singleshot timer so it's after menubar->setMaximumHeight() has taken effect,
+                    // otherwise it won't be selected and menubarTimer will hide the menubar instantly
+                    menubar->setActiveAction(mainWindow->m_ui->menuFile->menuAction());
+                });
                 m_menubarTimer.start();
             } else {
                 m_menubarTimer.stop();

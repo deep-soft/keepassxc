@@ -44,6 +44,7 @@
 #include "gui/FileDialog.h"
 #include "gui/GuiTools.h"
 #include "gui/MainWindow.h"
+#include "gui/MergeDialog.h"
 #include "gui/MessageBox.h"
 #include "gui/TotpDialog.h"
 #include "gui/TotpExportSettingsDialog.h"
@@ -1120,8 +1121,8 @@ void DatabaseWidget::deleteGroup()
     if (inRecycleBin || isRecycleBin || isRecycleBinSubgroup || !m_db->metadata()->recycleBinEnabled()) {
         auto result = MessageBox::question(
             this,
-            tr("Delete group"),
-            tr("Do you really want to delete the group \"%1\" for good?").arg(currentGroup->name().toHtmlEscaped()),
+            tr("Confirm Delete Group"),
+            tr("Do you really want to permanently delete the group \"%1\"?").arg(currentGroup->name().toHtmlEscaped()),
             MessageBox::Delete | MessageBox::Cancel,
             MessageBox::Cancel);
 
@@ -1130,7 +1131,7 @@ void DatabaseWidget::deleteGroup()
         }
     } else {
         auto result = MessageBox::question(this,
-                                           tr("Move group to recycle bin?"),
+                                           tr("Confirm Recycle Group"),
                                            tr("Do you really want to move the group "
                                               "\"%1\" to the recycle bin?")
                                                .arg(currentGroup->name().toHtmlEscaped()),
@@ -1387,18 +1388,30 @@ void DatabaseWidget::mergeDatabase(bool accepted)
             return;
         }
 
-        Merger merger(srcDb.data(), m_db.data());
-        QStringList changeList = merger.merge();
+#ifdef WITH_XC_KEESHARE
+        // Disable KeeShare while merging to avoid conflicts with incoming changes
+        KeeShare::instance()->setSharingEnabled(m_db, false);
+#endif
 
-        if (!changeList.isEmpty()) {
-            showMessage(tr("Successfully merged the database files."), MessageWidget::Information);
-        } else {
-            showMessage(tr("Database was not modified by merge operation."), MessageWidget::Information);
-        }
+        auto* mergeDialog = new MergeDialog(srcDb, m_db, this);
+        connect(mergeDialog, &MergeDialog::databaseMerged, [this](bool changed) {
+            if (changed) {
+                showMessage(tr("Successfully merged the selected database."), MessageWidget::Positive);
+                emit databaseMerged(m_db);
+            } else {
+                showMessage(tr("No changes were made by the merge operation."), MessageWidget::Information);
+            }
+        });
+        connect(mergeDialog, &MergeDialog::finished, [this](int result) {
+            if (result == QDialog::Rejected) {
+                showMessage(tr("Merge canceled, no changes were made."), MessageWidget::Information);
+            }
+#ifdef WITH_XC_KEESHARE
+            KeeShare::instance()->setSharingEnabled(m_db, true);
+#endif
+        });
+        mergeDialog->open();
     }
-
-    switchToMainView();
-    emit databaseMerged(m_db);
 }
 
 void DatabaseWidget::syncUnlockedDatabase(bool accepted)
@@ -1438,7 +1451,7 @@ bool DatabaseWidget::syncWithDatabase(const QSharedPointer<Database>& otherDb, Q
     emit updateSyncProgress(50, tr("Syncing..."));
     Merger firstMerge(m_db.data(), otherDb.data());
     Merger secondMerge(otherDb.data(), m_db.data());
-    QStringList changeList = firstMerge.merge() + secondMerge.merge();
+    auto changeList = firstMerge.merge() + secondMerge.merge();
 
     if (!changeList.isEmpty()) {
         // Save synced databases
@@ -2640,7 +2653,7 @@ bool DatabaseWidget::saveBackup()
     }
 
     const QString newFilePath = fileDialog()->getSaveFileName(this,
-                                                              tr("Save database backup"),
+                                                              tr("Save Database Backup"),
                                                               FileDialog::getLastDir("backup", oldFilePath),
                                                               tr("KeePass 2 Database").append(" (*.kdbx)"));
 
@@ -2698,6 +2711,22 @@ bool DatabaseWidget::isRecycleBinSelected() const
     auto group = currentGroup();
     auto entry = currentSelectedEntry();
     return (group && group->isRecycled()) || (entry && entry->isRecycled());
+}
+
+bool DatabaseWidget::hasRecycledSelectedEntries() const
+{
+    if (!m_entryView) {
+        return false;
+    }
+
+    // Check if any of the selected entries are actually recycled
+    for (auto* entry : m_entryView->selectedEntries()) {
+        if (entry && entry->isRecycled()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void DatabaseWidget::emptyRecycleBin()

@@ -845,21 +845,30 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;You can use advanced search queries to find any entry in your open databases. The following shortcuts are useful:&lt;br/&gt;
-Ctrl+F - Toggle database search&lt;br/&gt;
-Ctrl+1 - Type username&lt;br/&gt;
-Ctrl+2 - Type password&lt;br/&gt;
-Ctrl+3 - Type TOTP&lt;br/&gt;
-Ctrl+4 - Type URL&lt;br/&gt;
-Ctrl+5 - Use Virtual Keyboard (Windows Only)&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Type {URL}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The following shortcuts are available:&lt;br/&gt;
+Ctrl+F - Focus search&lt;br/&gt;
+Ctrl+1 - Type username&lt;br/&gt;
+Ctrl+2 - Type password&lt;br/&gt;
+Ctrl+3 - Type TOTP&lt;br/&gt;
+Ctrl+4 - Type URL&lt;br/&gt;
+Ctrl+5 - Use Virtual Keyboard (Windows Only)&lt;br/&gt;
+Ctrl+Shift+1 - Copy username&lt;br/&gt;
+Ctrl+Shift+2 - Copy password&lt;br/&gt;
+Ctrl+Shift+3 - Copy TOTP&lt;br/&gt;
+Ctrl+Shift+4 - Copy URL&lt;br/&gt;
+&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can use advanced search queries to find any entry in your open databases.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2274,19 +2283,11 @@ removed from the database.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Publically visible display name used on the unlock dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Database public display name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Publically visible color used on the unlock dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2303,6 +2304,14 @@ removed from the database.</source>
     </message>
     <message>
         <source>Select Database Icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Publicly visible display name used on the unlock dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Publicly visible color used on the unlock dialog</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2639,18 +2648,6 @@ This is definitely a bug, please report it to the developers.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you really want to delete the group &quot;%1&quot; for good?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move group to recycle bin?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Do you really want to move the group &quot;%1&quot; to the recycle bin?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2671,14 +2668,6 @@ This is definitely a bug, please report it to the developers.</source>
     </message>
     <message>
         <source>No source database, nothing to do.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Successfully merged the database files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Database was not modified by merge operation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2749,10 +2738,6 @@ Disable safe saves and try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save database backup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Empty recycle bin?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2782,14 +2767,6 @@ Disable safe saves and try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remote sync &apos;%1&apos; failed: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error while saving database %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Downloading...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2798,7 +2775,15 @@ Disable safe saves and try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Remote sync &apos;%1&apos; failed: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Syncing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error while saving database %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2815,10 +2800,6 @@ Disable safe saves and try again?</source>
     </message>
     <message>
         <source>Do you want to load the changes?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reload database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2846,6 +2827,10 @@ Disable safe saves and try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Reload database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Database file overwritten.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2858,7 +2843,35 @@ Disable safe saves and try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Confirm Delete Group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you really want to permanently delete the group &quot;%1&quot;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm Recycle Group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Database Backup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Successfully merged the selected database.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No changes were made by the merge operation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge canceled, no changes were made.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3931,6 +3944,62 @@ This may cause the affected plugins to malfunction.</source>
 %2</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom Attributes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expiration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TOTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attachments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EntryAttachments</name>
@@ -4101,6 +4170,10 @@ Would you like to overwrite the existing attachment?</source>
         <source>Save…</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New Attachment</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EntryAttributesModel</name>
@@ -4129,62 +4202,6 @@ Would you like to overwrite the existing attachment?</source>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Attributes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Icon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expiration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TOTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attachments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto-Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tags</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4473,15 +4490,15 @@ This will leave your passwords and sensitive information vulnerable!
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export database to HTML file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HTML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid sort order</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4668,6 +4685,10 @@ You can enable the DuckDuckGo website icon service in the security section of th
     <name>ImageAttachmentsWidget</name>
     <message>
         <source>Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5719,10 +5740,6 @@ Are you sure you want to continue with this file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Delete Entry…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;New Group…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6088,10 +6105,6 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create Entry</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit Entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6336,16 +6349,46 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>E&amp;xpire Entry…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Clear SSH Agent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all identities in ssh-agent</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Entry…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E&amp;xpire Entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expire Entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Delete Entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Move selected entry(s) to the recycle bin</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Permanently delete the selected entry(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -6391,41 +6434,40 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
     </message>
 </context>
 <context>
+    <name>MergeDialog</name>
+    <message>
+        <source>Database Merge Confirmation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Merger</name>
     <message>
-        <source>Creating missing %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Relocating %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Overwriting %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronizing from newer source %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronizing from older source %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleting child %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleting orphan %1 [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Changed deleted objects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding missing icon %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6434,6 +6476,74 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
     </message>
     <message>
         <source>Adding custom data %1 [%2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous location: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of entries in group: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Group name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icon (UUID)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icon (Number)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expiry time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modification time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (Add local modifications to new entry)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (Add new modifications to existing entry)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Explicit deletion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Implicit deletion (e.g. removal of parent group)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding new icon %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6742,10 +6852,6 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
 <context>
     <name>PasskeyExporter</name>
     <message>
-        <source>KeePassXC: Passkey Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File &quot;%1.passkey&quot; already exists.
 Do you want to overwrite it?
 </source>
@@ -6761,6 +6867,10 @@ Do you want to overwrite it?
     </message>
     <message>
         <source>Cannot write to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite Existing File?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6838,14 +6948,6 @@ Do you want to overwrite it?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open passkey file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot import passkey</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot import passkey file &quot;%1&quot;. Data is missing.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6857,6 +6959,14 @@ The following data is missing:
     </message>
     <message>
         <source>Cannot import passkey file &quot;%1&quot;. Private key is missing or malformed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Passkey File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Passkey Import Failed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7939,10 +8049,6 @@ Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1 characters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Word count for the diceware passphrase.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8806,24 +8912,6 @@ Kernel: %3 %4</source>
         </translation>
     </message>
     <message>
-        <source>Do you really want to delete the entry &quot;%1&quot; for good?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Do you really want to delete %n entry(s) for good?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete entry(s)?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
         <source>Do you really want to move entry &quot;%1&quot; to the recycle bin?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8833,17 +8921,6 @@ Kernel: %3 %4</source>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message numerus="yes">
-        <source>Move entry(s) to recycle bin?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Replace references to entry?</source>
-        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>Entry &quot;%1&quot; has %2 reference(s). Do you want to overwrite references with values, skip this entry, or delete anyway?</source>
@@ -9222,17 +9299,6 @@ This option is deprecated, use --set-key-file instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete plugin data?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete plugin data from Entry(s)?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
         <source>Passkey</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9274,8 +9340,51 @@ This option is deprecated, use --set-key-file instead.</source>
         <comment>TOTP</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%1 character(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
-        <source>Fit</source>
+        <source>Do you really want to permanently delete the entry &quot;%1&quot;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Do you really want to permanently delete %n entry(s)?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Confirm Delete Entry(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Confirm Recycle Entry(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Confirm Delete Plugin Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete plugin data from the selected entry(s)?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Confirm Replace Entry References</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9823,12 +9932,15 @@ This option is deprecated, use --set-key-file instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1 characters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Average password length is less than ten characters. Longer passwords provide more security.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%1 character(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -10506,10 +10618,6 @@ Example: JBSWY3DPEHPK3PXP</source>
 <context>
     <name>YubiKeyInterfacePCSC</name>
     <message>
-        <source>The YubiKey PCSC interface has not been initialized.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not find or access hardware key with serial number %1. Please present it to continue. </source>
         <translation type="unfinished"></translation>
     </message>
@@ -10519,10 +10627,6 @@ Example: JBSWY3DPEHPK3PXP</source>
     </message>
     <message>
         <source>Hardware key was not found or is not configured.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to complete a challenge-response, the PCSC error code was: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10540,13 +10644,17 @@ Example: JBSWY3DPEHPK3PXP</source>
         <comment>USB Challenge-Response Key no interaction required</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The YubiKey PC/SC interface has not been initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to complete a challenge-response, the PC/SC error code was: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>YubiKeyInterfaceUSB</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Press</source>
         <comment>USB Challenge-Response Key interaction request</comment>
@@ -10585,6 +10693,11 @@ Example: JBSWY3DPEHPK3PXP</source>
     <message>
         <source>%1 [%2] - Slot %3, %4</source>
         <comment>YubiKey display fields</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <comment>Unknown hardware key name</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
