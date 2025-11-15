@@ -67,7 +67,10 @@ jobs:
       shell: bash
       run: |
         # mkdir build && cd build
-        bash release-tool build --version develop
+        # bash release-tool build --version develop
+        ls -la release-tool.py
+        chmod +x release-tool.py
+        ./release-tool.py build --version develop
 
     - name: Archive Release
       uses: deep-soft/zip-release@v3
