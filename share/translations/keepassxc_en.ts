@@ -158,6 +158,25 @@
     </message>
 </context>
 <context>
+    <name>AppKit</name>
+    <message>
+        <source>Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bring All to Front</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ApplicationSettingsWidget</name>
     <message>
         <source>Application Settings</source>
@@ -562,10 +581,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open browser on double clicking URL field in entry view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Font size:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -575,6 +590,30 @@
     </message>
     <message>
         <source>Skip confirmation for main window Auto-Type actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double-click action for URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double-click action for URL field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open entry URL in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entry URL to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-generate password for new entries</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -869,6 +908,17 @@ Ctrl+Shift+4 - Copy URL&lt;br/&gt;
     </message>
     <message>
         <source>You can use advanced search queries to find any entry in your open databases.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BinaryStream</name>
+    <message>
+        <source>Failed to read string data: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>String length exceeds 10 MiB limit (requested %1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3685,6 +3735,14 @@ Supported extensions are: %1.</source>
         <source>Select import/export file</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Maintain group structure with shared database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep Group Structure</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditGroupWidgetMain</name>
@@ -3869,14 +3927,6 @@ Supported extensions are: %1.</source>
     </message>
     <message>
         <source>Datetime modified</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Accessed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Datetime accessed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4253,10 +4303,6 @@ Would you like to overwrite the existing attachment?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Accessed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attachments</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4290,10 +4336,6 @@ Would you like to overwrite the existing attachment?</source>
     </message>
     <message>
         <source>Last modification date</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Last access date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6707,10 +6749,6 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to read public key.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Corrupted key file, reading private key failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6796,6 +6834,14 @@ Expect some bugs and minor issues, this version is meant for testing purposes.</
     </message>
     <message>
         <source>(encrypted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to read key file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to read public key: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10552,11 +10598,7 @@ Example: JBSWY3DPEHPK3PXP</source>
 <context>
     <name>YubiKey</name>
     <message>
-        <source>General: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not find interface for hardware key with serial number %1. Please connect it to continue.</source>
+        <source>Could not find hardware key with serial number %1. Please connect it to continue.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10617,10 +10659,6 @@ Example: JBSWY3DPEHPK3PXP</source>
 </context>
 <context>
     <name>YubiKeyInterfacePCSC</name>
-    <message>
-        <source>Could not find or access hardware key with serial number %1. Please present it to continue. </source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Hardware key is locked or timed out. Unlock or re-present it to continue.</source>
         <translation type="unfinished"></translation>

@@ -334,12 +334,15 @@ QList<QString> Entry::autoTypeSequences(const QString& windowTitle) const
     };
 
     QList<QString> sequenceList;
+    QList<QString> emptyWindowSequences;
 
     // Add window association matches
     const auto assocList = autoTypeAssociations()->getAll();
     for (const auto& assoc : assocList) {
         auto window = resolveMultiplePlaceholders(assoc.window);
-        if (!assoc.window.isEmpty() && windowMatches(window)) {
+        if (assoc.window.isEmpty()) {
+            emptyWindowSequences << assoc.sequence;
+        } else if (windowMatches(window)) {
             if (!assoc.sequence.isEmpty()) {
                 sequenceList << assoc.sequence;
             } else {
@@ -356,6 +359,11 @@ QList<QString> Entry::autoTypeSequences(const QString& windowTitle) const
     // Try to match url in window title
     if (config()->get(Config::AutoTypeEntryURLMatch).toBool() && windowMatchesUrl(resolvePlaceholder(url()))) {
         sequenceList << effectiveAutoTypeSequence();
+    }
+
+    // If any associations were made, include the empty window associations
+    if (!sequenceList.isEmpty()) {
+        sequenceList.append(emptyWindowSequences);
     }
 
     return sequenceList;
@@ -1130,6 +1138,15 @@ QString Entry::resolveMultiplePlaceholdersRecursive(const QString& str, int maxD
         return str;
     }
 
+    // Short circuit if we have escaped the placeholder brackets
+    if (str.startsWith("\\{") && str.endsWith("\\}")) {
+        // Replace the escaped brackets with actuals and move on
+        auto ret = str;
+        ret.replace(0, 2, "{");
+        ret.replace(ret.size() - 2, 2, "}");
+        return ret;
+    }
+
     QString result;
     auto matches = placeholderRegEx.globalMatch(str);
     int capEnd = 0;
@@ -1167,6 +1184,8 @@ QString Entry::resolvePlaceholderRecursive(const QString& placeholder, int maxDe
         return resolveMultiplePlaceholdersRecursive(notes(), maxDepth);
     case PlaceholderType::Url:
         return resolveMultiplePlaceholdersRecursive(url(), maxDepth);
+    case PlaceholderType::Uuid:
+        return uuidToHex();
     case PlaceholderType::DbDir: {
         QFileInfo fileInfo(database()->filePath());
         return fileInfo.absoluteDir().absolutePath();
@@ -1362,7 +1381,10 @@ QString Entry::resolveReferencePlaceholderRecursive(const QString& placeholder, 
 
     QString result;
     const QString searchIn = match.captured(EntryAttributes::SearchInGroupName);
-    const QString searchText = match.captured(EntryAttributes::SearchTextGroupName);
+    QString searchText = match.captured(EntryAttributes::SearchTextGroupName);
+
+    // Resolve placeholders in the search text (e.g., {UUID} -> actual UUID)
+    searchText = resolvePlaceholder(searchText);
 
     const EntryReferenceType searchInType = Entry::referenceType(searchIn);
 
@@ -1573,6 +1595,7 @@ Entry::PlaceholderType Entry::placeholderType(const QString& placeholder) const
         {QStringLiteral("{NOTES}"), PlaceholderType::Notes},
         {QStringLiteral("{TOTP}"), PlaceholderType::Totp},
         {QStringLiteral("{URL}"), PlaceholderType::Url},
+        {QStringLiteral("{UUID}"), PlaceholderType::Uuid},
         {QStringLiteral("{URL:RMVSCM}"), PlaceholderType::UrlWithoutScheme},
         {QStringLiteral("{URL:WITHOUTSCHEME}"), PlaceholderType::UrlWithoutScheme},
         {QStringLiteral("{URL:SCM}"), PlaceholderType::UrlScheme},

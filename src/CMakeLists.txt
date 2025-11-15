@@ -421,7 +421,12 @@ if(WIN32)
 endif()
 
 # Main Executable Definition
+add_executable(${PROGNAME} main.cpp)
+target_link_libraries(${PROGNAME} keepassxc_gui)
+set_target_properties(${PROGNAME} PROPERTIES ENABLE_EXPORTS ON)
+
 if(WIN32)
+    set_target_properties(${PROGNAME} PROPERTIES WIN32 ON)
     include(GenerateProductVersion)
     generate_product_version(
             WIN32_ResourceFiles
@@ -432,20 +437,24 @@ if(WIN32)
             VERSION_PATCH ${KEEPASSXC_VERSION_PATCH}
     )
     list(APPEND WIN32_ResourceFiles "${CMAKE_SOURCE_DIR}/share/windows/icon.rc")
-endif()
+    target_sources(${PROGNAME} PUBLIC ${WIN32_ResourceFiles})
 
-add_executable(${PROGNAME} WIN32 main.cpp ${WIN32_ResourceFiles})
-target_link_libraries(${PROGNAME} keepassxc_gui)
-set_target_properties(${PROGNAME} PROPERTIES ENABLE_EXPORTS ON)
-
-# macOS App Bundle
-if(APPLE AND WITH_APP_BUNDLE)
-    install(FILES ${CMAKE_SOURCE_DIR}/share/macosx/embedded.provisionprofile DESTINATION ${BUNDLE_INSTALL_DIR})
-    configure_file(${CMAKE_SOURCE_DIR}/share/macosx/Info.plist.cmake ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
+elseif(APPLE AND WITH_APP_BUNDLE)
+    set(MACOSX_BUNDLE_IDENTIFIER org.keepassxc.keepassxc)
+    set(MACOSX_BUNDLE_ICON_NAME keepassxc)
+    configure_file("${CMAKE_SOURCE_DIR}/share/macosx/Info.plist.cmake" ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
+    install(FILES "${CMAKE_SOURCE_DIR}/share/macosx/embedded.provisionprofile" DESTINATION ${BUNDLE_INSTALL_DIR})
+    set(MACOSX_BUNDLE_RESOURCE_FILES
+            "${CMAKE_SOURCE_DIR}/share/macosx/Assets.car"
+            "${CMAKE_SOURCE_DIR}/share/macosx/keepassxc.icns"
+    )
     set_target_properties(${PROGNAME} PROPERTIES
             MACOSX_BUNDLE ON
-            MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist
-            CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/share/macosx/keepassxc.entitlements")
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
+            CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/share/macosx/keepassxc.entitlements"
+            RESOURCE "${MACOSX_BUNDLE_RESOURCE_FILES}"
+    )
+    target_sources(${PROGNAME} PUBLIC ${MACOSX_BUNDLE_RESOURCE_FILES})
 
     if(QT_MAC_USE_COCOA AND EXISTS "${QT_LIBRARY_DIR}/Resources/qt_menu.nib")
         install(DIRECTORY "${QT_LIBRARY_DIR}/Resources/qt_menu.nib"
@@ -482,8 +491,9 @@ if(WIN32)
             "${CMAKE_SOURCE_DIR}/LICENSE.GPL-2"
             "${CMAKE_CURRENT_BINARY_DIR}/INSTALLER_LICENSE.txt")
 
-    # Prepare portal zip file
-    set(CPACK_INSTALL_SCRIPTS "${CMAKE_SOURCE_DIR}/cmake/MakePortableZip.cmake")
+    # Prepare post-install script and set to run prior to building cpack installers
+    configure_file("${CMAKE_SOURCE_DIR}/cmake/WindowsPostInstall.cmake.in" "${CMAKE_BINARY_DIR}/WindowsPostInstall.cmake" @ONLY)
+    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/WindowsPostInstall.cmake")
 
     string(REGEX REPLACE "-.*$" "" KEEPASSXC_VERSION_CLEAN ${KEEPASSXC_VERSION})
 
