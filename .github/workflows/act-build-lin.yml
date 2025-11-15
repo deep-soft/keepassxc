@@ -70,7 +70,7 @@ jobs:
         # bash release-tool build --version develop
         ls -la release-tool.py
         chmod +x release-tool.py
-        ./release-tool.py build --version develop
+        ./release-tool.py build
 
     - name: Archive Release
       uses: deep-soft/zip-release@v3
