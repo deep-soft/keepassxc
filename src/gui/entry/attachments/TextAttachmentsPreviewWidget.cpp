@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2025 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2026 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,11 +36,9 @@ namespace
             return TextAttachmentsPreviewWidget::Html;
         }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
         if (mimeType == Tools::MimeType::Markdown) {
             return TextAttachmentsPreviewWidget::Markdown;
         }
-#endif
 
         return TextAttachmentsPreviewWidget::PlainText;
     }
@@ -99,6 +97,9 @@ void TextAttachmentsPreviewWidget::initTypeCombobox()
     // Configure text browser to open external links
     m_ui->previewTextBrowser->setOpenExternalLinks(true);
 
+    m_ui->previewTextBrowser->setTabStopDistance(
+        QFontMetrics(m_ui->previewTextBrowser->font()).horizontalAdvance(QString(4, ' ')));
+
     m_ui->typeComboBox->setCurrentIndex(m_ui->typeComboBox->findData(PlainText));
 
     onTypeChanged(m_ui->typeComboBox->currentIndex());
@@ -138,11 +139,9 @@ void TextAttachmentsPreviewWidget::onTypeChanged(int index)
         m_ui->previewTextBrowser->setHtml(m_attachment.data);
     }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
     if (fileType == TextAttachmentsPreviewWidget::PreviewTextType::Markdown) {
         m_ui->previewTextBrowser->setMarkdown(m_attachment.data);
     }
-#endif
 
     // Delay setting the scrollbar position to ensure the text is rendered first
     QTimer::singleShot(

@@ -28,6 +28,8 @@
 #include <QStandardPaths>
 #include <QTemporaryFile>
 
+#include <algorithm>
+
 #define CONFIG_VERSION 2
 #define QS QStringLiteral
 
@@ -81,6 +83,11 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::AutoTypeHideExpiredEntry,{QS("AutoTypeHideExpiredEntry"), Roaming, false}},
     {Config::AutoTypeDialogSortColumn,{QS("AutoTypeDialogSortColumn"), Roaming, 0}},
     {Config::AutoTypeDialogSortOrder,{QS("AutoTypeDialogSortOrder"), Roaming, Qt::AscendingOrder}},
+    {Config::AutoTypeDesktopPortalPersistConnection,{QS("AutoTypeDesktopPortalPersistConnection"), Roaming, false}},
+    {Config::AutoTypeDesktopPortalUseClipboard,{QS("AutoTypeDesktopPortalUseClipboard"), Roaming, false}},
+    {Config::AutoTypeDesktopPortalPersistMode,{QS("AutoTypeDesktopPortalPersistMode"), Roaming, 1}},
+    {Config::AutoTypeDesktopPortalRestoreToken,{QS("AutoTypeDesktopPortalRestoreToken"), Local, ""}},
+    {Config::AutoTypePreferDesktopPortals,{QS("AutoTypePreferDesktopPortals"), Roaming, false}},
     {Config::GlobalAutoTypeKey,{QS("GlobalAutoTypeKey"), Roaming, 0}},
     {Config::GlobalAutoTypeModifiers,{QS("GlobalAutoTypeModifiers"), Roaming, 0}},
     {Config::GlobalAutoTypeRetypeTime,{QS("GlobalAutoTypeRetypeTime"), Roaming, 15}},
@@ -123,6 +130,7 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::GUI_ShowExpiredEntriesOnDatabaseUnlock, {QS("GUI/ShowExpiredEntriesOnDatabaseUnlock"), Roaming, true}},
     {Config::GUI_ShowExpiredEntriesOnDatabaseUnlockOffsetDays, {QS("GUI/ShowExpiredEntriesOnDatabaseUnlockOffsetDays"), Roaming, 3}},
     {Config::GUI_FontSizeOffset, {QS("GUI/FontSizeOffset"), Local, 0}},
+    {Config::GUI_XDPGlobalShortcutsConfigured, {QS("GUI/XDPGlobalShortcutsConfigured"), Local, false}},
 
     {Config::GUI_MainWindowGeometry, {QS("GUI/MainWindowGeometry"), Local, {}}},
     {Config::GUI_MainWindowState, {QS("GUI/MainWindowState"), Local, {}}},
@@ -140,7 +148,7 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::Security_ClearSearchTimeout, {QS("Security/ClearSearchTimeout"), Roaming, 5}},
     {Config::Security_HideNotes, {QS("Security/Security_HideNotes"), Roaming, false}},
     {Config::Security_LockDatabaseIdle, {QS("Security/LockDatabaseIdle"), Roaming, true}},
-    {Config::Security_LockDatabaseIdleSeconds, {QS("Security/LockDatabaseIdleSeconds"), Roaming, 240}},
+    {Config::Security_LockDatabaseIdleSeconds, {QS("Security/LockDatabaseIdleSeconds"), Roaming, 900}},
     {Config::Security_LockDatabaseMinimize, {QS("Security/LockDatabaseMinimize"), Roaming, false}},
     {Config::Security_LockDatabaseScreenLock, {QS("Security/LockDatabaseScreenLock"), Roaming, true}},
     {Config::Security_LockDatabaseOnUserSwitch, {QS("Security/LockDatabaseOnUserSwitch"), Roaming, true}},
@@ -319,20 +327,13 @@ bool Config::importSettings(const QString& fileName)
         return false;
     }
 
-    // Only import valid roaming settings
-    auto isValidSetting = [](const QString& key) {
-        for (const auto& value : configStrings.values()) {
-            if (value.type == ConfigType::Roaming && value.name == key) {
-                return true;
-            }
-        }
-        return false;
-    };
-
     // Clear existing settings and set valid items
     m_settings->clear();
     for (const auto& key : settings.allKeys()) {
-        if (isValidSetting(key)) {
+        // Only import valid roaming settings
+        if (std::any_of(configStrings.cbegin(), configStrings.cend(), [&key](const ConfigDirective& directive) -> bool {
+                return directive.type == ConfigType::Roaming && directive.name == key;
+            })) {
             m_settings->setValue(key, settings.value(key));
         }
     }

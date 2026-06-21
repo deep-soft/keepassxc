@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2025 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2026 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2017 Sami Vänttinen <sami.vanttinen@protonmail.com>
  *  Copyright (C) 2013 Francois Ferrand
  *
@@ -23,20 +23,18 @@
 #include "BrowserEntrySaveDialog.h"
 #include "BrowserHost.h"
 #include "BrowserMessageBuilder.h"
+#include "BrowserPasskeys.h"
+#include "BrowserPasskeysClient.h"
+#include "BrowserPasskeysConfirmationDialog.h"
 #include "BrowserSettings.h"
+#include "PasskeyUtils.h"
 #include "core/EntryAttributes.h"
 #include "core/Tools.h"
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
 #include "gui/UrlTools.h"
 #include "gui/osutils/OSUtils.h"
-#ifdef WITH_XC_BROWSER_PASSKEYS
-#include "BrowserPasskeys.h"
-#include "BrowserPasskeysClient.h"
-#include "BrowserPasskeysConfirmationDialog.h"
-#include "PasskeyUtils.h"
 #include "gui/passkeys/PasskeyImporter.h"
-#endif
 #ifdef Q_OS_MACOS
 #include "gui/osutils/macutils/MacUtils.h"
 #endif
@@ -57,11 +55,9 @@
 const QString BrowserService::KEEPASSXCBROWSER_NAME = QStringLiteral("KeePassXC-Browser Settings");
 const QString BrowserService::KEEPASSXCBROWSER_OLD_NAME = QStringLiteral("keepassxc-browser Settings");
 static const QString KEEPASSXCBROWSER_GROUP_NAME = QStringLiteral("KeePassXC-Browser Passwords");
-static int KEEPASSXCBROWSER_DEFAULT_ICON = 1;
-#ifdef WITH_XC_BROWSER_PASSKEYS
-static int KEEPASSXCBROWSER_PASSKEY_ICON = 13;
 static const QString PASSKEYS_DEFAULT_GROUP_NAME = QStringLiteral("KeePassXC-Browser Passkeys");
-#endif
+static int KEEPASSXCBROWSER_DEFAULT_ICON = 1;
+static int KEEPASSXCBROWSER_PASSKEY_ICON = 13;
 // These are for the settings and password conversion
 static const QString KEEPASSHTTP_NAME = QStringLiteral("KeePassHttp Settings");
 static const QString KEEPASSHTTP_GROUP_NAME = QStringLiteral("KeePassHttp Passwords");
@@ -324,11 +320,11 @@ QJsonObject BrowserService::createNewGroup(const QString& groupName, bool isPass
             newGroup->setName(groups[i]);
             newGroup->setUuid(QUuid::createUuid());
             newGroup->setParent(previousGroup);
-#ifdef WITH_XC_BROWSER_PASSKEYS
+
             if (isPasskeysGroup && i == groups.length() - 1) {
                 newGroup->setIcon(KEEPASSXCBROWSER_PASSKEY_ICON);
             }
-#endif
+
             name = newGroup->name();
             newGroup->setCustomDataTriState(BrowserService::OPTION_HIDE_ENTRY, Group::Disable);
             uuid = Tools::uuidToHex(newGroup->uuid());
@@ -634,7 +630,6 @@ QString BrowserService::getKey(const QString& id)
     return db->metadata()->customData()->value(CustomData::getKeyWithPrefix(CustomData::BrowserKeyPrefix, id));
 }
 
-#ifdef WITH_XC_BROWSER_PASSKEYS
 // Passkey registration
 QJsonObject BrowserService::showPasskeysRegisterPrompt(const QJsonObject& publicKeyOptions,
                                                        const QString& origin,
@@ -775,8 +770,20 @@ QJsonObject BrowserService::showPasskeysAuthenticationPrompt(const QJsonObject& 
         const auto credentialId = passkeyUtils()->getCredentialIdFromEntry(selectedEntry);
         const auto userHandle = selectedEntry->attributes()->value(EntryAttributes::KPEX_PASSKEY_USER_HANDLE);
 
-        auto publicKeyCredential =
-            browserPasskeys()->buildGetPublicKeyCredential(assertionOptions, credentialId, userHandle, privateKeyPem);
+        // Get BE and BS flags if present
+        const auto beFlag =
+            selectedEntry->attributes()->hasKey(EntryAttributes::KPEX_PASSKEY_FLAG_BE)
+                ? selectedEntry->attributes()->value(EntryAttributes::KPEX_PASSKEY_FLAG_BE) == "1"
+                      || selectedEntry->attributes()->value(EntryAttributes::KPEX_PASSKEY_FLAG_BE) == TRUE_STR
+                : DEFAULT_BE_FLAG;
+        const auto bsFlag =
+            selectedEntry->attributes()->hasKey(EntryAttributes::KPEX_PASSKEY_FLAG_BS)
+                ? selectedEntry->attributes()->value(EntryAttributes::KPEX_PASSKEY_FLAG_BS) == "1"
+                      || selectedEntry->attributes()->value(EntryAttributes::KPEX_PASSKEY_FLAG_BS) == TRUE_STR
+                : DEFAULT_BS_FLAG;
+
+        auto publicKeyCredential = browserPasskeys()->buildGetPublicKeyCredential(
+            assertionOptions, credentialId, userHandle, privateKeyPem, beFlag, bsFlag);
         if (publicKeyCredential.isEmpty()) {
             return getPasskeyError(ERROR_PASSKEYS_UNKNOWN_ERROR);
         }
@@ -856,11 +863,12 @@ void BrowserService::addPasskeyToEntry(Entry* entry,
     entry->attributes()->set(EntryAttributes::KPEX_PASSKEY_PRIVATE_KEY_PEM, privateKey, true);
     entry->attributes()->set(EntryAttributes::KPEX_PASSKEY_RELYING_PARTY, rpId);
     entry->attributes()->set(EntryAttributes::KPEX_PASSKEY_USER_HANDLE, userHandle, true);
+    entry->attributes()->set(EntryAttributes::KPEX_PASSKEY_FLAG_BE, "1");
+    entry->attributes()->set(EntryAttributes::KPEX_PASSKEY_FLAG_BS, "1");
     entry->addTag(tr("Passkey"));
 
     entry->endUpdate();
 }
-#endif
 
 void BrowserService::addEntry(const EntryParameters& entryParameters,
                               const QString& group,
@@ -1013,8 +1021,8 @@ QList<Entry*> BrowserService::searchEntries(const QSharedPointer<Database>& db,
     }
 
     for (const auto& group : rootGroup->groupsRecursive(true)) {
-        if (group->isRecycled()
-            || group->resolveCustomDataTriState(BrowserService::OPTION_HIDE_ENTRY) == Group::Enable) {
+        const auto groupOptionHideEntry = group->resolveCustomDataTriState(BrowserService::OPTION_HIDE_ENTRY);
+        if (group->isRecycled() || groupOptionHideEntry == Group::Enable) {
             continue;
         }
 
@@ -1029,7 +1037,8 @@ QList<Entry*> BrowserService::searchEntries(const QSharedPointer<Database>& db,
 
         for (auto* entry : group->entries()) {
             if (entry->isRecycled()
-                || (entry->customData()->contains(BrowserService::OPTION_HIDE_ENTRY)
+                || (groupOptionHideEntry == Group::Inherit
+                    && entry->customData()->contains(BrowserService::OPTION_HIDE_ENTRY)
                     && entry->customData()->value(BrowserService::OPTION_HIDE_ENTRY) == TRUE_STR)) {
                 continue;
             }
@@ -1038,12 +1047,10 @@ QList<Entry*> BrowserService::searchEntries(const QSharedPointer<Database>& db,
                 continue;
             }
 
-#ifdef WITH_XC_BROWSER_PASSKEYS
             // With Passkeys, check for the Relying Party instead of URL
             if (passkey && entry->attributes()->value(EntryAttributes::KPEX_PASSKEY_RELYING_PARTY) != siteUrl) {
                 continue;
             }
-#endif
 
             // Additional URL check may have already inserted the entry to the list
             if (!entries.contains(entry)) {
@@ -1383,7 +1390,6 @@ bool BrowserService::shouldIncludeEntry(Entry* entry,
     return false;
 }
 
-#ifdef WITH_XC_BROWSER_PASSKEYS
 // Returns all Passkey entries for the current Relying Party
 QList<Entry*> BrowserService::getPasskeyEntries(const QString& rpId, const StringPairList& keyList)
 {
@@ -1445,7 +1451,7 @@ bool BrowserService::isPasskeyCredentialExcluded(const QJsonArray& excludeCreden
 {
     QStringList allIds;
     for (const auto& cred : excludeCredentials) {
-        allIds << cred["id"].toString();
+        allIds << cred.toObject().value("id").toString();
     }
 
     const auto passkeyEntries = getPasskeyEntries(rpId, keyList);
@@ -1458,7 +1464,6 @@ QJsonObject BrowserService::getPasskeyError(int errorCode) const
 {
     return QJsonObject({{"errorCode", errorCode}});
 }
-#endif
 
 bool BrowserService::handleURL(const QString& entryUrl,
                                const QString& siteUrl,
@@ -1766,7 +1771,7 @@ void BrowserService::processClientMessage(QLocalSocket* socket, const QJsonObjec
         m_browserClients.insert(clientID, QSharedPointer<BrowserAction>::create());
     }
 
-    auto& action = m_browserClients.value(clientID);
+    const auto& action = m_browserClients.value(clientID);
     auto response = action->processClientMessage(socket, message);
     m_browserHost->sendClientMessage(socket, response);
 }

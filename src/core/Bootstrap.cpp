@@ -175,6 +175,7 @@ namespace Bootstrap
 
         if (!CreateWellKnownSid(WinCreatorOwnerRightsSid, nullptr, pOwnerRightsSid, &pOwnerRightsSidSize)) {
             auto error = GetLastError();
+            Q_UNUSED(error)
             goto Cleanup;
         }
 
@@ -208,7 +209,7 @@ namespace Bootstrap
             goto Cleanup;
         }
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
         // OpenSSH for Windows ssh-agent service is running as LocalSystem
         if (!AddAccessAllowedAce(pACL,
                                  ACL_REVISION,

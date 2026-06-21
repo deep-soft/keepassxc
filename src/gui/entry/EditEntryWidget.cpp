@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2023 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2026 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2010 Felix Geyer <debfx@fobos.de>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -40,12 +40,13 @@
 #include "core/Metadata.h"
 #include "core/PasswordGenerator.h"
 #include "core/TimeDelta.h"
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
 #include "sshagent/OpenSSHKey.h"
 #include "sshagent/OpenSSHKeyGenDialog.h"
 #include "sshagent/SSHAgent.h"
+#include <QSignalBlocker>
 #endif
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
 #include "EntryURLModel.h"
 #include "browser/BrowserService.h"
 #endif
@@ -76,10 +77,10 @@ EditEntryWidget::EditEntryWidget(QWidget* parent)
     , m_advancedWidget(new QWidget(this))
     , m_iconsWidget(new EditWidgetIcons(this))
     , m_autoTypeWidget(new QWidget(this))
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     , m_sshAgentWidget(new QWidget(this))
 #endif
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     , m_browserSettingsChanged(false)
     , m_browserWidget(new QWidget(this))
     , m_additionalURLsDataModel(new EntryURLModel(this))
@@ -102,11 +103,11 @@ EditEntryWidget::EditEntryWidget(QWidget* parent)
     setupIcon();
     setupAutoType();
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     setupSSHAgent();
 #endif
 
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     setupBrowser();
 #endif
 
@@ -163,13 +164,13 @@ QWidget* EditEntryWidget::widgetForPage(Page page) const
     case Page::AutoType:
         return m_autoTypeWidget;
     case Page::Browser:
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
         return m_browserWidget;
 #else
         return nullptr;
 #endif
     case Page::SSHAgent:
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
         return m_sshAgentWidget;
 #else
         return nullptr;
@@ -196,19 +197,19 @@ void EditEntryWidget::setupMain()
     m_usernameCompleter->setModel(m_usernameCompleterModel);
     m_mainUi->usernameComboBox->setCompleter(m_usernameCompleter);
 
-#ifdef WITH_XC_NETWORKING
+#ifdef KPXC_FEATURE_NETWORK
     m_mainUi->fetchFaviconButton->setIcon(icons()->icon("favicon-download"));
     m_mainUi->fetchFaviconButton->setDisabled(true);
 #else
     m_mainUi->fetchFaviconButton->setVisible(false);
 #endif
 
-#ifdef WITH_XC_NETWORKING
+#ifdef KPXC_FEATURE_NETWORK
     connect(m_mainUi->fetchFaviconButton, SIGNAL(clicked()), m_iconsWidget, SLOT(downloadFavicon()));
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), m_iconsWidget, SLOT(setUrl(QString)));
     m_mainUi->urlEdit->enableVerifyMode();
 #endif
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), this, SLOT(entryURLEdited(const QString&)));
 #endif
     connect(m_mainUi->expireCheck, &QCheckBox::toggled, [&](bool enabled) {
@@ -303,7 +304,7 @@ void EditEntryWidget::setupAutoType()
     // clang-format on
 }
 
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
 void EditEntryWidget::setupBrowser()
 {
     if (config()->get(Config::Browser_Enabled).toBool()) {
@@ -350,25 +351,31 @@ void EditEntryWidget::updateBrowser()
         return;
     }
 
+    auto changeValue = [&](const QString& option, const bool newValue) {
+        // If value is false and no customData exists, make no edits
+        if (!m_customData->hasKey(option) && !newValue) {
+            return;
+        }
+
+        // If customData exists, set the value
+        m_customData->set(option, (newValue ? TRUE_STR : FALSE_STR));
+    };
+
     // Only update the custom data if no group level settings are used (checkbox is enabled)
     if (m_browserUi->hideEntryCheckbox->isEnabled()) {
-        auto hide = m_browserUi->hideEntryCheckbox->isChecked();
-        m_customData->set(BrowserService::OPTION_HIDE_ENTRY, (hide ? TRUE_STR : FALSE_STR));
+        changeValue(BrowserService::OPTION_HIDE_ENTRY, m_browserUi->hideEntryCheckbox->isChecked());
     }
 
     if (m_browserUi->skipAutoSubmitCheckbox->isEnabled()) {
-        auto skip = m_browserUi->skipAutoSubmitCheckbox->isChecked();
-        m_customData->set(BrowserService::OPTION_SKIP_AUTO_SUBMIT, (skip ? TRUE_STR : FALSE_STR));
+        changeValue(BrowserService::OPTION_SKIP_AUTO_SUBMIT, m_browserUi->skipAutoSubmitCheckbox->isChecked());
     }
 
     if (m_browserUi->onlyHttpAuthCheckbox->isEnabled()) {
-        auto onlyHttpAuth = m_browserUi->onlyHttpAuthCheckbox->isChecked();
-        m_customData->set(BrowserService::OPTION_ONLY_HTTP_AUTH, (onlyHttpAuth ? TRUE_STR : FALSE_STR));
+        changeValue(BrowserService::OPTION_ONLY_HTTP_AUTH, m_browserUi->onlyHttpAuthCheckbox->isChecked());
     }
 
     if (m_browserUi->notHttpAuthCheckbox->isEnabled()) {
-        auto notHttpAuth = m_browserUi->notHttpAuthCheckbox->isChecked();
-        m_customData->set(BrowserService::OPTION_NOT_HTTP_AUTH, (notHttpAuth ? TRUE_STR : FALSE_STR));
+        changeValue(BrowserService::OPTION_NOT_HTTP_AUTH, m_browserUi->notHttpAuthCheckbox->isChecked());
     }
 }
 
@@ -494,7 +501,7 @@ void EditEntryWidget::setupEntryUpdate()
     connect(m_mainUi->usernameComboBox->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(setModified()));
     connect(m_mainUi->passwordEdit, SIGNAL(textChanged(QString)), this, SLOT(setModified()));
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), this, SLOT(setModified()));
-#ifdef WITH_XC_NETWORKING
+#ifdef KPXC_FEATURE_NETWORK
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), this, SLOT(updateFaviconButtonEnable(QString)));
 #endif
     connect(m_mainUi->tagsList, SIGNAL(tagsEdited()), this, SLOT(setModified()));
@@ -525,7 +532,7 @@ void EditEntryWidget::setupEntryUpdate()
 
     // Properties and History tabs don't need extra connections
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     // SSH Agent tab
     if (sshAgent()->isEnabled()) {
         connect(m_sshAgentUi->attachmentRadioButton, SIGNAL(toggled(bool)), this, SLOT(setModified()));
@@ -541,7 +548,7 @@ void EditEntryWidget::setupEntryUpdate()
     }
 #endif
 
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     if (config()->get(Config::Browser_Enabled).toBool()) {
         connect(m_browserUi->skipAutoSubmitCheckbox, SIGNAL(toggled(bool)), SLOT(setModified()));
         connect(m_browserUi->hideEntryCheckbox, SIGNAL(toggled(bool)), SLOT(setModified()));
@@ -589,7 +596,7 @@ void EditEntryWidget::updateHistoryButtons(const QModelIndex& current, const QMo
     }
 }
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
 void EditEntryWidget::setupSSHAgent()
 {
     m_pendingPrivateKey = "";
@@ -630,6 +637,7 @@ void EditEntryWidget::setSSHAgentSettings()
     m_sshAgentUi->requireUserConfirmationCheckBox->setChecked(m_sshAgentSettings.useConfirmConstraintWhenAdding());
     m_sshAgentUi->lifetimeCheckBox->setChecked(m_sshAgentSettings.useLifetimeConstraintWhenAdding());
     m_sshAgentUi->lifetimeSpinBox->setValue(m_sshAgentSettings.lifetimeConstraintDuration());
+    QSignalBlocker sshAgent_attachmentComboBox_Blocker(m_sshAgentUi->attachmentComboBox);
     m_sshAgentUi->attachmentComboBox->clear();
     m_sshAgentUi->addToAgentButton->setEnabled(false);
     m_sshAgentUi->removeFromAgentButton->setEnabled(false);
@@ -666,6 +674,7 @@ void EditEntryWidget::updateSSHAgentAttachments()
         setSSHAgentSettings();
     }
 
+    QSignalBlocker sshAgent_attachmentComboBox_Blocker(m_sshAgentUi->attachmentComboBox);
     m_sshAgentUi->attachmentComboBox->clear();
     m_sshAgentUi->attachmentComboBox->addItem("");
 
@@ -678,6 +687,7 @@ void EditEntryWidget::updateSSHAgentAttachments()
     }
 
     m_sshAgentUi->attachmentComboBox->setCurrentText(m_sshAgentSettings.attachmentName());
+    QSignalBlocker sshAgent_externalFileEdit_Blocker(m_sshAgentUi->externalFileEdit);
     m_sshAgentUi->externalFileEdit->setText(m_sshAgentSettings.fileName());
 
     if (m_sshAgentSettings.selectedType() == "attachment") {
@@ -942,7 +952,7 @@ void EditEntryWidget::loadEntry(Entry* entry,
 
     switchToPage(Page::Main);
     setPageHidden(m_historyWidget, m_history || m_entry->historyItems().count() < 1);
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     setPageHidden(m_sshAgentWidget, !sshAgent()->isEnabled());
 #endif
 
@@ -960,6 +970,9 @@ void EditEntryWidget::loadEntry(Entry* entry,
 
 void EditEntryWidget::setForms(Entry* entry, bool restore)
 {
+#ifdef KPXC_FEATURE_SSHAGENT
+    QSignalBlocker attachmentsBlocker(m_attachments.data());
+#endif
     m_attachments->copyDataFrom(entry->attachments());
     m_customData->copyDataFrom(entry->customData());
 
@@ -982,6 +995,9 @@ void EditEntryWidget::setForms(Entry* entry, bool restore)
         m_mainUi->notesEdit->setFont(Font::defaultFont());
     }
 
+    m_mainUi->notesEdit->setTabStopDistance(
+        QFontMetrics(m_mainUi->notesEdit->font()).horizontalAdvance(QString(4, ' ')));
+
     m_advancedUi->attachmentsWidget->setReadOnly(m_history);
     m_advancedUi->addAttributeButton->setEnabled(!m_history);
     m_advancedUi->editAttributeButton->setEnabled(false);
@@ -1003,6 +1019,7 @@ void EditEntryWidget::setForms(Entry* entry, bool restore)
     m_autoTypeUi->windowSequenceEdit->setReadOnly(m_history);
     m_historyWidget->setEnabled(!m_history);
 
+    m_mainUi->urlEdit->setEntry(entry);
     m_mainUi->titleEdit->setText(entry->title());
     m_mainUi->usernameComboBox->lineEdit()->setText(entry->username());
     m_mainUi->urlEdit->setText(entry->url());
@@ -1064,67 +1081,38 @@ void EditEntryWidget::setForms(Entry* entry, bool restore)
     }
     updateAutoTypeEnabled();
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     if (sshAgent()->isEnabled()) {
         updateSSHAgent();
     }
 #endif
 
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     if (config()->get(Config::Browser_Enabled).toBool()) {
         if (!hasPage(m_browserWidget)) {
             setupBrowser();
         }
 
-        auto hideEntriesCheckBoxEnabled = true;
-        auto skipAutoSubmitCheckBoxEnabled = true;
-        auto onlyHttpAuthCheckBoxEnabled = true;
-        auto notHttpAuthCheckBoxEnabled = true;
-        auto hideEntries = false;
-        auto skipAutoSubmit = false;
-        auto onlyHttpAuth = false;
-        auto notHttpAuth = false;
-
         const auto group = m_entry->group();
-        if (group) {
-            hideEntries = group->resolveCustomDataTriState(BrowserService::OPTION_HIDE_ENTRY) == Group::Enable;
-            skipAutoSubmit = group->resolveCustomDataTriState(BrowserService::OPTION_SKIP_AUTO_SUBMIT) == Group::Enable;
-            onlyHttpAuth = group->resolveCustomDataTriState(BrowserService::OPTION_ONLY_HTTP_AUTH) == Group::Enable;
-            notHttpAuth = group->resolveCustomDataTriState(BrowserService::OPTION_NOT_HTTP_AUTH) == Group::Enable;
+        m_browserUi->messageWidget->showMessage(
+            tr("Some Browser Integration settings are overridden by group settings."), MessageWidget::Information);
+        m_browserUi->messageWidget->setVisible(false);
 
-            hideEntriesCheckBoxEnabled =
-                group->resolveCustomDataTriState(BrowserService::OPTION_HIDE_ENTRY) == Group::Inherit;
-            skipAutoSubmitCheckBoxEnabled =
-                group->resolveCustomDataTriState(BrowserService::OPTION_SKIP_AUTO_SUBMIT) == Group::Inherit;
-            onlyHttpAuthCheckBoxEnabled =
-                group->resolveCustomDataTriState(BrowserService::OPTION_ONLY_HTTP_AUTH) == Group::Inherit;
-            notHttpAuthCheckBoxEnabled =
-                group->resolveCustomDataTriState(BrowserService::OPTION_NOT_HTTP_AUTH) == Group::Inherit;
-        }
+        auto updateCheckBoxValue = [&](QCheckBox* checkBox, const QString& option) {
+            const auto optionEnabledInGroup = group ? group->resolveBrowserOptionEnabled(option) : false;
+            const auto optionInherited = group ? group->resolveCustomDataTriState(option) == Group::Inherit : true;
 
-        // Show information about group level settings
-        if (!hideEntriesCheckBoxEnabled || !skipAutoSubmitCheckBoxEnabled || !onlyHttpAuthCheckBoxEnabled
-            || !notHttpAuthCheckBoxEnabled) {
-            m_browserUi->messageWidget->showMessage(
-                tr("Some Browser Integration settings are overridden by group settings."), MessageWidget::Information);
-            m_browserUi->messageWidget->setVisible(true);
-        }
+            if (!optionInherited) {
+                m_browserUi->messageWidget->setVisible(true);
+            }
 
-        // Disable checkboxes based on group level settings
-        updateBrowserIntegrationCheckbox(
-            m_browserUi->hideEntryCheckbox, hideEntriesCheckBoxEnabled, hideEntries, BrowserService::OPTION_HIDE_ENTRY);
-        updateBrowserIntegrationCheckbox(m_browserUi->skipAutoSubmitCheckbox,
-                                         skipAutoSubmitCheckBoxEnabled,
-                                         skipAutoSubmit,
-                                         BrowserService::OPTION_SKIP_AUTO_SUBMIT);
-        updateBrowserIntegrationCheckbox(m_browserUi->onlyHttpAuthCheckbox,
-                                         onlyHttpAuthCheckBoxEnabled,
-                                         onlyHttpAuth,
-                                         BrowserService::OPTION_ONLY_HTTP_AUTH);
-        updateBrowserIntegrationCheckbox(m_browserUi->notHttpAuthCheckbox,
-                                         notHttpAuthCheckBoxEnabled,
-                                         notHttpAuth,
-                                         BrowserService::OPTION_NOT_HTTP_AUTH);
+            updateBrowserIntegrationCheckbox(checkBox, optionInherited, optionEnabledInGroup, option);
+        };
+
+        updateCheckBoxValue(m_browserUi->hideEntryCheckbox, BrowserService::OPTION_HIDE_ENTRY);
+        updateCheckBoxValue(m_browserUi->skipAutoSubmitCheckbox, BrowserService::OPTION_SKIP_AUTO_SUBMIT);
+        updateCheckBoxValue(m_browserUi->onlyHttpAuthCheckbox, BrowserService::OPTION_ONLY_HTTP_AUTH);
+        updateCheckBoxValue(m_browserUi->notHttpAuthCheckbox, BrowserService::OPTION_NOT_HTTP_AUTH);
 
         m_browserUi->addURLButton->setEnabled(!m_history);
         m_browserUi->removeURLButton->setEnabled(false);
@@ -1226,7 +1214,7 @@ bool EditEntryWidget::commitEntry()
 
     m_autoTypeAssoc->removeEmpty();
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     toKeeAgentSettings(m_sshAgentSettings);
 #endif
 
@@ -1235,7 +1223,7 @@ bool EditEntryWidget::commitEntry()
         m_entry->beginUpdate();
     }
 
-#ifdef WITH_XC_BROWSER
+#ifdef KPXC_FEATURE_BROWSER
     if (config()->get(Config::Browser_Enabled).toBool()) {
         updateBrowser();
     }
@@ -1323,7 +1311,7 @@ void EditEntryWidget::updateEntryData(Entry* entry) const
 
     entry->autoTypeAssociations()->copyDataFrom(m_autoTypeAssoc);
 
-#ifdef WITH_XC_SSHAGENT
+#ifdef KPXC_FEATURE_SSHAGENT
     if (sshAgent()->isEnabled()) {
         m_sshAgentSettings.toEntry(entry);
     }
@@ -1401,6 +1389,9 @@ void EditEntryWidget::clear()
     m_mainUi->notesEdit->clear();
 
     m_entryAttributes->clear();
+#ifdef KPXC_FEATURE_SSHAGENT
+    QSignalBlocker attachmentsBlocker(m_attachments.data());
+#endif
     m_attachments->clear();
     m_customData->clear();
     m_autoTypeAssoc->clear();
@@ -1409,7 +1400,7 @@ void EditEntryWidget::clear()
     hideMessage();
 }
 
-#ifdef WITH_XC_NETWORKING
+#ifdef KPXC_FEATURE_NETWORK
 void EditEntryWidget::updateFaviconButtonEnable(const QString& url)
 {
     m_mainUi->fetchFaviconButton->setDisabled(url.isEmpty());
@@ -1573,7 +1564,7 @@ void EditEntryWidget::updateAutoTypeEnabled()
     m_autoTypeUi->inheritSequenceButton->setEnabled(!m_history && autoTypeEnabled);
     m_autoTypeUi->customSequenceButton->setEnabled(!m_history && autoTypeEnabled);
     m_autoTypeUi->sequenceEdit->setEnabled(autoTypeEnabled && m_autoTypeUi->customSequenceButton->isChecked());
-    m_autoTypeUi->openHelpButton->setEnabled(autoTypeEnabled && m_autoTypeUi->customSequenceButton->isChecked());
+    m_autoTypeUi->openHelpButton->setEnabled(autoTypeEnabled);
 
     m_autoTypeUi->assocView->setEnabled(autoTypeEnabled);
     m_autoTypeUi->assocAddButton->setEnabled(!m_history);

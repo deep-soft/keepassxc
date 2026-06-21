@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2021 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2025 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2012 Felix Geyer <debfx@fobos.de>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "core/Database.h"
 #include "core/Entry.h"
 #include "core/EntrySearcher.h"
+#include "core/Group.h"
 #include "gui/Clipboard.h"
 #include "gui/Icons.h"
 
@@ -151,9 +152,19 @@ void AutoTypeSelectDialog::performSearch()
 
         EntrySearcher searcher;
         QList<AutoTypeMatch> matches;
+        bool hideExpired = config()->get(Config::AutoTypeHideExpiredEntry).toBool();
         for (const auto& db : m_dbs) {
             auto found = searcher.search(searchText, db->rootGroup());
             for (auto* entry : found) {
+                auto group = entry->group();
+                if (!group || !group->resolveAutoTypeEnabled() || !entry->autoTypeEnabled()) {
+                    continue;
+                }
+
+                if (hideExpired && entry->isExpired()) {
+                    continue;
+                }
+
                 QSet<QString> sequences;
                 auto defSequence = entry->effectiveAutoTypeSequence();
                 if (!defSequence.isEmpty()) {
@@ -309,7 +320,7 @@ void AutoTypeSelectDialog::buildActionMenu()
     m_actionMenu->addAction(copyTotpAction);
     m_actionMenu->addAction(copyUrlAction);
 
-    typeUsernameAction->setShortcut(Qt::CTRL + Qt::Key_1);
+    typeUsernameAction->setShortcut(Qt::CTRL | Qt::Key_1);
     typeUsernameAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::USERNAME);
     connect(typeUsernameAction, &QAction::triggered, this, [&] {
         auto match = m_ui->view->currentMatch();
@@ -317,7 +328,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         submitAutoTypeMatch(match);
     });
 
-    typePasswordAction->setShortcut(Qt::CTRL + Qt::Key_2);
+    typePasswordAction->setShortcut(Qt::CTRL | Qt::Key_2);
     typePasswordAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::PASSWORD);
     connect(typePasswordAction, &QAction::triggered, this, [&] {
         auto match = m_ui->view->currentMatch();
@@ -325,7 +336,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         submitAutoTypeMatch(match);
     });
 
-    typeTotpAction->setShortcut(Qt::CTRL + Qt::Key_3);
+    typeTotpAction->setShortcut(Qt::CTRL | Qt::Key_3);
     typeTotpAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::TOTP);
     connect(typeTotpAction, &QAction::triggered, this, [&] {
         auto match = m_ui->view->currentMatch();
@@ -333,7 +344,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         submitAutoTypeMatch(match);
     });
 
-    typeUrlAction->setShortcut(Qt::CTRL + Qt::Key_4);
+    typeUrlAction->setShortcut(Qt::CTRL | Qt::Key_4);
     typeUrlAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::URL);
     connect(typeUrlAction, &QAction::triggered, this, [&] {
         auto match = m_ui->view->currentMatch();
@@ -344,14 +355,14 @@ void AutoTypeSelectDialog::buildActionMenu()
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     auto typeVirtualAction = new QAction(icons()->icon("auto-type"), tr("Use Virtual Keyboard"), nullptr);
     m_actionMenu->insertAction(copyUsernameAction, typeVirtualAction);
-    typeVirtualAction->setShortcut(Qt::CTRL + Qt::Key_5);
+    typeVirtualAction->setShortcut(Qt::CTRL | Qt::Key_5);
     connect(typeVirtualAction, &QAction::triggered, this, [&] {
         m_virtualMode = true;
         activateCurrentMatch();
     });
 #endif
 
-    copyUsernameAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_1);
+    copyUsernameAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_1);
     copyUsernameAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::USERNAME);
     connect(copyUsernameAction, &QAction::triggered, this, [&] {
         auto entry = m_ui->view->currentMatch().first;
@@ -361,7 +372,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         }
     });
 
-    copyPasswordAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_2);
+    copyPasswordAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_2);
     copyPasswordAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::PASSWORD);
     connect(copyPasswordAction, &QAction::triggered, this, [&] {
         auto entry = m_ui->view->currentMatch().first;
@@ -371,7 +382,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         }
     });
 
-    copyTotpAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_3);
+    copyTotpAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_3);
     copyTotpAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::TOTP);
     connect(copyTotpAction, &QAction::triggered, this, [&] {
         auto entry = m_ui->view->currentMatch().first;
@@ -381,7 +392,7 @@ void AutoTypeSelectDialog::buildActionMenu()
         }
     });
 
-    copyUrlAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_4);
+    copyUrlAction->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_4);
     copyUrlAction->setProperty(MENU_FIELD_PROP_NAME, MENU_FIELD::URL);
     connect(copyUrlAction, &QAction::triggered, this, [&] {
         auto entry = m_ui->view->currentMatch().first;
@@ -390,20 +401,6 @@ void AutoTypeSelectDialog::buildActionMenu()
             reject();
         }
     });
-
-    // Qt 5.10 introduced a new "feature" to hide shortcuts in context menus
-    // Unfortunately, Qt::AA_DontShowShortcutsInContextMenus is broken, have to manually enable them
-    typeUsernameAction->setShortcutVisibleInContextMenu(true);
-    typePasswordAction->setShortcutVisibleInContextMenu(true);
-    typeTotpAction->setShortcutVisibleInContextMenu(true);
-    typeUrlAction->setShortcutVisibleInContextMenu(true);
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    typeVirtualAction->setShortcutVisibleInContextMenu(true);
-#endif
-    copyUsernameAction->setShortcutVisibleInContextMenu(true);
-    copyPasswordAction->setShortcutVisibleInContextMenu(true);
-    copyTotpAction->setShortcutVisibleInContextMenu(true);
-    copyUrlAction->setShortcutVisibleInContextMenu(true);
 }
 
 void AutoTypeSelectDialog::showEvent(QShowEvent* event)

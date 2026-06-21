@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2025 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2010 Felix Geyer <debfx@fobos.de>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QStringBuilder>
+#include <QStringView>
 #include <QUrl>
 
 const int Entry::DefaultIconNumber = 0;
@@ -1152,11 +1153,11 @@ QString Entry::resolveMultiplePlaceholdersRecursive(const QString& str, int maxD
     int capEnd = 0;
     while (matches.hasNext()) {
         const auto match = matches.next();
-        result += str.midRef(capEnd, match.capturedStart() - capEnd);
+        result += QStringView{str}.mid(capEnd, match.capturedStart() - capEnd);
         result += resolvePlaceholderRecursive(match.captured(), maxDepth);
         capEnd = match.capturedEnd();
     }
-    result += str.rightRef(str.length() - capEnd);
+    result += QStringView{str}.right(str.length() - capEnd);
     return result;
 }
 
@@ -1594,6 +1595,7 @@ Entry::PlaceholderType Entry::placeholderType(const QString& placeholder) const
         {QStringLiteral("{PASSWORD}"), PlaceholderType::Password},
         {QStringLiteral("{NOTES}"), PlaceholderType::Notes},
         {QStringLiteral("{TOTP}"), PlaceholderType::Totp},
+        {QStringLiteral("{TIMEOTP}"), PlaceholderType::Totp},
         {QStringLiteral("{URL}"), PlaceholderType::Url},
         {QStringLiteral("{UUID}"), PlaceholderType::Uuid},
         {QStringLiteral("{URL:RMVSCM}"), PlaceholderType::UrlWithoutScheme},

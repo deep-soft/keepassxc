@@ -1,6 +1,6 @@
 /*
+ *  Copyright (C) 2025 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2016 Lennart Glauer <mail@lennart-glauer.de>
- *  Copyright (C) 2017 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KEEPASSX_AUTOTYPEWINDOWS_H
-#define KEEPASSX_AUTOTYPEWINDOWS_H
+#ifndef KEEPASSXC_AUTOTYPEWINDOWS_H
+#define KEEPASSXC_AUTOTYPEWINDOWS_H
 
 #include <QtPlugin>
 
@@ -29,13 +29,16 @@
 #include "autotype/AutoTypeAction.h"
 #include "autotype/AutoTypePlatformPlugin.h"
 
+class WinUtils;
+
 class AutoTypePlatformWin : public QObject, public AutoTypePlatformInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.keepassx.AutoTypePlatformWindows")
+    Q_PLUGIN_METADATA(IID "org.keepassxc.AutoTypePlatformWindows")
     Q_INTERFACES(AutoTypePlatformInterface)
 
 public:
+    void setOSUtils(OSUtilsBase* osUtils) override;
     bool isAvailable() override;
     QStringList windowTitles() override;
     WId activeWindow() override;
@@ -52,6 +55,8 @@ private:
     static bool isAltTabWindow(HWND hwnd);
     static BOOL CALLBACK windowTitleEnumProc(_In_ HWND hwnd, _In_ LPARAM lParam);
     static QString windowTitle(HWND hwnd);
+
+    WinUtils* m_winUtils = nullptr;
 };
 
 class AutoTypeExecutorWin : public AutoTypeExecutor
@@ -67,4 +72,4 @@ private:
     AutoTypePlatformWin* const m_platform;
 };
 
-#endif // KEEPASSX_AUTOTYPEWINDOWS_H
+#endif // KEEPASSXC_AUTOTYPEWINDOWS_H

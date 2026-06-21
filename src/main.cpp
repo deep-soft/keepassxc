@@ -1,6 +1,6 @@
 /*
+ *  Copyright (C) 2026 KeePassXC Team <team@keepassxc.org>
  *  Copyright (C) 2010 Felix Geyer <debfx@fobos.de>
- *  Copyright (C) 2020 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,9 +53,18 @@ int main(int argc, char** argv)
 {
     QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR)
 
+#ifdef Q_OS_WIN
+    // Set OPENSSL_* variables to an invalid location to prevent DLL injection via openssl.cnf.
+    // vcpkg by default hard-codes this to its packages location, which may be user-writable.
+    qputenv("OPENSSL_CONF", "::");
+    qputenv("OPENSSL_MODULES", "::");
+    qputenv("OPENSSL_ENGINES", "::");
+#endif
+
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && defined(Q_OS_WIN)
+    QGuiApplication::setDesktopFileName("org.keepassxc.KeePassXC");
+#if defined(Q_OS_WIN)
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
     Application app(argc, argv);
@@ -67,8 +76,10 @@ int main(int argc, char** argv)
 
     // HACK: Prevent long-running threads from deadlocking the program with only 1 CPU
     // See https://github.com/keepassxreboot/keepassxc/issues/10391
-    if (QThreadPool::globalInstance()->maxThreadCount() < 2) {
-        QThreadPool::globalInstance()->setMaxThreadCount(2);
+    // HACK: increased to a minimum of 3 threads
+    // See https://github.com/keepassxreboot/keepassxc/issues/12909
+    if (QThreadPool::globalInstance()->maxThreadCount() < 3) {
+        QThreadPool::globalInstance()->setMaxThreadCount(3);
     }
 
     QCommandLineParser parser;
@@ -180,8 +191,6 @@ int main(int argc, char** argv)
 
     // Apply the configured theme before creating any GUI elements
     app.applyTheme();
-
-    QGuiApplication::setDesktopFileName(app.property("KPXC_QUALIFIED_APPNAME").toString() + QStringLiteral(".desktop"));
 
     Application::bootstrap(config()->get(Config::GUI_Language).toString());
 

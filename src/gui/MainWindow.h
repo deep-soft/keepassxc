@@ -160,6 +160,7 @@ private:
     static const QString BaseWindowTitle;
 
     void saveWindowInformation();
+    void restoreWindowInformation();
     bool saveLastDatabases();
     bool isTrayIconEnabled() const;
     void customOpenUrl(QString url);
@@ -181,7 +182,6 @@ private:
     QPointer<QActionGroup> m_copyAdditionalAttributeActions;
     QPointer<QActionGroup> m_setTagsMenuActions;
     QPointer<InactivityTimer> m_inactivityTimer;
-    QPointer<InactivityTimer> m_touchIDinactivityTimer;
     int m_countDefaultAttributes;
     QPointer<QSystemTrayIcon> m_trayIcon;
     QPointer<ScreenLockListener> m_screenLockListener;
@@ -192,6 +192,7 @@ private:
 
     Q_DISABLE_COPY(MainWindow)
 
+    bool m_windowInformationRestored = false;
     bool m_appExitCalled = false;
     bool m_appExiting = false;
     bool m_restartRequested = false;
